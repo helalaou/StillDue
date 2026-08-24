@@ -1,0 +1,15 @@
+project_id = "stilldue"
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+[db]
+port = 54322
+major_version = 17
+[auth]
+enabled = true
+site_url = "http://localhost:5177"
+additional_redirect_urls = ["http://localhost:5177/auth", "https://stilldue.netlify.app/auth"]
+[auth.email]
+enable_signup = true
+enable_confirmations = true
