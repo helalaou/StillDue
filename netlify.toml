@@ -1,0 +1,28 @@
+[build]
+command = "npm run build"
+publish = "dist"
+[build.environment]
+NODE_VERSION = "24"
+[functions]
+directory = "netlify/functions"
+node_bundler = "esbuild"
+[functions."refresh-catalog"]
+schedule = "17 3 * * *"
+[functions."process-reminders"]
+schedule = "*/5 * * * *"
+[functions."advance-recurrences"]
+schedule = "*/10 * * * *"
+[functions."weekly-digest"]
+schedule = "23 * * * *"
+[[redirects]]
+from = "/*"
+to = "/index.html"
+status = 200
+[[headers]]
+for = "/*"
+[headers.values]
+X-Content-Type-Options = "nosniff"
+Referrer-Policy = "strict-origin-when-cross-origin"
+X-Frame-Options = "DENY"
+Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://*.supabase.co wss://*.supabase.co; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'"
