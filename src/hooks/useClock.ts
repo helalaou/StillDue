@@ -1,0 +1,2 @@
+import {useEffect,useState} from 'react';
+export function useClock(seconds=60){const [now,set]=useState(Date.now());useEffect(()=>{set(Date.now());const id=setInterval(()=>set(Date.now()),Math.max(1000,seconds*1000));const sync=()=>set(Date.now());document.addEventListener('visibilitychange',sync);return()=>{clearInterval(id);document.removeEventListener('visibilitychange',sync)}},[seconds]);return now}
