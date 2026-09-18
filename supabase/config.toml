@@ -8,8 +8,9 @@ port = 54322
 major_version = 17
 [auth]
 enabled = true
-site_url = "http://localhost:5177"
-additional_redirect_urls = ["http://localhost:5177/auth", "https://stilldue.netlify.app/auth"]
+site_url = "https://stilldue.netlify.app"
+additional_redirect_urls = ["http://localhost:5177/auth", "http://127.0.0.1:5177/auth", "https://stilldue.netlify.app/auth"]
+minimum_password_length = 12
 [auth.email]
 enable_signup = true
 enable_confirmations = true
