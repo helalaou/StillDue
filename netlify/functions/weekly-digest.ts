@@ -1,2 +1,68 @@
-import {Temporal} from '@js-temporal/polyfill';import {adminClient,emailReady} from '../lib/admin';import {json} from '../lib/auth';import {sendEmail,emailLayout,escapeHtml} from '../lib/email';import {defaultPreferences} from '../../src/domain/defaults';import {normalizeZone,formatDate} from '../../src/domain/time';import {quietUntil} from '../lib/quiet-hours';
-export default async function(){if(!emailReady())return json({status:'email-not-configured'});const db=adminClient();const {data:profiles,error}=await db.from('profiles').select('id,preferences,last_digest_at').contains('preferences',{weeklyDigest:true}).limit(1000);if(error)throw error;let sent=0;for(const profile of profiles||[]){const p={...defaultPreferences(),...profile.preferences};const z=Temporal.Now.zonedDateTimeISO(normalizeZone(p.timezone));if(z.dayOfWeek!==1||z.hour<8||z.hour>18||quietUntil(new Date().toISOString(),p.timezone,p.quietStart,p.quietEnd))continue;const start=z.startOfDay().toInstant().toString();if(profile.last_digest_at&&profile.last_digest_at>=start)continue;const {data:items}=await db.from('deadlines').select('title,due_at,next_action').eq('user_id',profile.id).eq('status','active').eq('certainty','confirmed').gte('due_at',new Date().toISOString()).lte('due_at',z.add({days:7}).toInstant().toString()).order('due_at').limit(30);if(!items?.length)continue;const {data:account}=await db.auth.admin.getUserById(profile.id);if(!account.user?.email)continue;try{await sendEmail(account.user.email,'Your week, a little clearer.',emailLayout('A little perspective for the week.',items.map(d=>`<h3>${escapeHtml(d.title)}</h3><p>${escapeHtml(formatDate(d.due_at,p.timezone,p.hour24))}</p>`).join('')),'stilldue-week-'+profile.id+'-'+z.toPlainDate().toString());await db.from('profiles').update({last_digest_at:new Date().toISOString()}).eq('id',profile.id);sent++}catch{/* A subsequent scheduled invocation retries with the same idempotency key. */}}return json({sent})}
+import { Temporal } from '@js-temporal/polyfill';
+import { adminClient, emailReady } from '../lib/admin';
+import { json } from '../lib/auth';
+import { sendEmail, emailLayout, escapeHtml } from '../lib/email';
+import { defaultPreferences } from '../../src/domain/defaults';
+import { normalizeZone, formatDate } from '../../src/domain/time';
+import { quietUntil } from '../lib/quiet-hours';
+export default async function () {
+  if (!emailReady()) return json({ status: 'email-not-configured' });
+  const db = adminClient();
+  const { data: profiles, error } = await db
+    .from('profiles')
+    .select('id,preferences,last_digest_at')
+    .contains('preferences', { weeklyDigest: true })
+    .limit(1000);
+  if (error) throw error;
+  let sent = 0;
+  for (const profile of profiles || []) {
+    const p = { ...defaultPreferences(), ...profile.preferences };
+    const z = Temporal.Now.zonedDateTimeISO(normalizeZone(p.timezone));
+    if (
+      z.dayOfWeek !== 1 ||
+      z.hour < 8 ||
+      z.hour > 18 ||
+      quietUntil(new Date().toISOString(), p.timezone, p.quietStart, p.quietEnd)
+    )
+      continue;
+    const start = z.startOfDay().toInstant().toString();
+    if (profile.last_digest_at && profile.last_digest_at >= start) continue;
+    const { data: items } = await db
+      .from('deadlines')
+      .select('title,due_at,next_action')
+      .eq('user_id', profile.id)
+      .eq('status', 'active')
+      .eq('certainty', 'confirmed')
+      .gte('due_at', new Date().toISOString())
+      .lte('due_at', z.add({ days: 7 }).toInstant().toString())
+      .order('due_at')
+      .limit(30);
+    if (!items?.length) continue;
+    const { data: account } = await db.auth.admin.getUserById(profile.id);
+    if (!account.user?.email) continue;
+    try {
+      await sendEmail(
+        account.user.email,
+        'Your week, a little clearer.',
+        emailLayout(
+          'A little perspective for the week.',
+          items
+            .map(
+              (d) =>
+                `<h3>${escapeHtml(d.title)}</h3><p>${escapeHtml(formatDate(d.due_at, p.timezone, p.hour24))}</p>`,
+            )
+            .join(''),
+        ),
+        'stilldue-week-' + profile.id + '-' + z.toPlainDate().toString(),
+      );
+      await db
+        .from('profiles')
+        .update({ last_digest_at: new Date().toISOString() })
+        .eq('id', profile.id);
+      sent++;
+    } catch {
+      /* A subsequent scheduled invocation retries with the same idempotency key. */
+    }
+  }
+  return json({ sent });
+}

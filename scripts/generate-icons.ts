@@ -1,2 +1,10 @@
-import sharp from 'sharp';import {mkdir} from 'node:fs/promises';
-await mkdir('public/icons',{recursive:true});for(const size of [192,512])await sharp('public/brand/mark.svg').resize(size,size).png().toFile(`public/icons/icon-${size}.png`);await sharp('public/brand/mark.svg').resize(1024,1024).png().toFile('public/brand/mark-1024.png');console.log('Generated app icons and a high-resolution brand mark.');
+import sharp from 'sharp';
+import { mkdir } from 'node:fs/promises';
+await mkdir('public/icons', { recursive: true });
+for (const size of [192, 512])
+  await sharp('public/brand/mark.svg')
+    .resize(size, size)
+    .png()
+    .toFile(`public/icons/icon-${size}.png`);
+await sharp('public/brand/mark.svg').resize(1024, 1024).png().toFile('public/brand/mark-1024.png');
+console.log('Generated app icons and a high-resolution brand mark.');

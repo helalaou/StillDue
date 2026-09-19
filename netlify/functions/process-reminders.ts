@@ -1,2 +1,73 @@
-import {adminClient,emailReady} from '../lib/admin';import {sendEmail,emailLayout,escapeHtml} from '../lib/email';import {quietUntil} from '../lib/quiet-hours';import {json} from '../lib/auth';import {defaultPreferences} from '../../src/domain/defaults';import {formatDate} from '../../src/domain/time';
-export default async function(){if(!emailReady())return json({status:'email-not-configured',sent:0});const db=adminClient();const {data:jobs,error}=await db.rpc('claim_reminders',{batch_size:15});if(error)throw error;let sent=0;await Promise.all((jobs||[]).map(async(job:{id:string;user_id:string;deadline_id:string;scheduled_at:string})=>{try{const [{data:d},{data:profile},{data:account}]=await Promise.all([db.from('deadlines').select('*').eq('id',job.deadline_id).single(),db.from('profiles').select('preferences').eq('id',job.user_id).single(),db.auth.admin.getUserById(job.user_id)]);const p={...defaultPreferences(),...profile?.preferences};if(!d||d.status!=='active'||!d.due_at||Date.parse(d.due_at)<=Date.now()||!p.emailReminders||!account.user?.email){await db.from('reminders').update({sent_at:new Date().toISOString(),last_error:'Skipped: deadline or preference no longer eligible.'}).eq('id',job.id);return}const until=quietUntil(new Date().toISOString(),p.timezone,p.quietStart,p.quietEnd);if(until){await db.from('reminders').update({scheduled_at:until,claimed_at:null,attempts:0}).eq('id',job.id);return}const html=emailLayout('A deadline is coming into view.',`<h2>${escapeHtml(d.title)}</h2><p>${escapeHtml(formatDate(d.due_at,p.timezone,p.hour24))} (${escapeHtml(p.timezone)})</p>${d.next_action?'<p>Next small step: '+escapeHtml(d.next_action)+'</p>':''}`);await sendEmail(account.user.email,'Coming up: '+d.title,html,'stilldue-reminder-'+job.id);await db.from('reminders').update({sent_at:new Date().toISOString(),last_error:null}).eq('id',job.id);sent++}catch{await db.from('reminders').update({last_error:'Delivery failed; will retry.'}).eq('id',job.id)}}));return json({sent})}
+import { adminClient, emailReady } from '../lib/admin';
+import { sendEmail, emailLayout, escapeHtml } from '../lib/email';
+import { quietUntil } from '../lib/quiet-hours';
+import { json } from '../lib/auth';
+import { defaultPreferences } from '../../src/domain/defaults';
+import { formatDate } from '../../src/domain/time';
+export default async function () {
+  if (!emailReady()) return json({ status: 'email-not-configured', sent: 0 });
+  const db = adminClient();
+  const { data: jobs, error } = await db.rpc('claim_reminders', { batch_size: 15 });
+  if (error) throw error;
+  let sent = 0;
+  await Promise.all(
+    (jobs || []).map(
+      async (job: { id: string; user_id: string; deadline_id: string; scheduled_at: string }) => {
+        try {
+          const [{ data: d }, { data: profile }, { data: account }] = await Promise.all([
+            db.from('deadlines').select('*').eq('id', job.deadline_id).single(),
+            db.from('profiles').select('preferences').eq('id', job.user_id).single(),
+            db.auth.admin.getUserById(job.user_id),
+          ]);
+          const p = { ...defaultPreferences(), ...profile?.preferences };
+          if (
+            !d ||
+            d.status !== 'active' ||
+            !d.due_at ||
+            Date.parse(d.due_at) <= Date.now() ||
+            !p.emailReminders ||
+            !account.user?.email
+          ) {
+            await db
+              .from('reminders')
+              .update({
+                sent_at: new Date().toISOString(),
+                last_error: 'Skipped: deadline or preference no longer eligible.',
+              })
+              .eq('id', job.id);
+            return;
+          }
+          const until = quietUntil(new Date().toISOString(), p.timezone, p.quietStart, p.quietEnd);
+          if (until) {
+            await db
+              .from('reminders')
+              .update({ scheduled_at: until, claimed_at: null, attempts: 0 })
+              .eq('id', job.id);
+            return;
+          }
+          const html = emailLayout(
+            'A deadline is coming into view.',
+            `<h2>${escapeHtml(d.title)}</h2><p>${escapeHtml(formatDate(d.due_at, p.timezone, p.hour24))} (${escapeHtml(p.timezone)})</p>${d.next_action ? '<p>Next small step: ' + escapeHtml(d.next_action) + '</p>' : ''}`,
+          );
+          await sendEmail(
+            account.user.email,
+            'Coming up: ' + d.title,
+            html,
+            'stilldue-reminder-' + job.id,
+          );
+          await db
+            .from('reminders')
+            .update({ sent_at: new Date().toISOString(), last_error: null })
+            .eq('id', job.id);
+          sent++;
+        } catch {
+          await db
+            .from('reminders')
+            .update({ last_error: 'Delivery failed; will retry.' })
+            .eq('id', job.id);
+        }
+      },
+    ),
+  );
+  return json({ sent });
+}

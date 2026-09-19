@@ -1,2 +1,14 @@
-export function toRow(value:object){return Object.fromEntries(Object.entries(value).filter(([key])=>!['isSystem','createdAt','updatedAt','version'].includes(key)).map(([key,v])=>[key.replace(/[A-Z]/g,m=>'_'+m.toLowerCase()),v]))}
-export function fromRow<T>(value:Record<string,unknown>):T{return Object.fromEntries(Object.entries(value).filter(([key])=>!['user_id','recurrence_advanced_at'].includes(key)).map(([key,v])=>[key.replace(/_([a-z])/g,(_,c:string)=>c.toUpperCase()),v])) as T}
+export function toRow(value: object) {
+  return Object.fromEntries(
+    Object.entries(value)
+      .filter(([key]) => !['isSystem', 'createdAt', 'updatedAt', 'version'].includes(key))
+      .map(([key, v]) => [key.replace(/[A-Z]/g, (m) => '_' + m.toLowerCase()), v]),
+  );
+}
+export function fromRow<T>(value: Record<string, unknown>): T {
+  return Object.fromEntries(
+    Object.entries(value)
+      .filter(([key]) => !['user_id', 'recurrence_advanced_at'].includes(key))
+      .map(([key, v]) => [key.replace(/_([a-z])/g, (_, c: string) => c.toUpperCase()), v]),
+  ) as T;
+}

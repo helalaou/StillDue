@@ -1,3 +1,23 @@
-import {test,expect} from '@playwright/test';import {enterDemo,navigate} from './helpers';
-test('shows large deadlines and device-specific e-ink mode',async({page})=>{await enterDemo(page);await navigate(page,'Display mode');await expect(page.getByRole('heading',{name:'Full paper submission'})).toBeVisible();await page.getByRole('button',{name:'Display settings'}).click();await page.getByLabel('E-ink preset on this device').check();await expect(page.locator('html')).toHaveAttribute('data-theme','eink');await page.getByRole('button',{name:'Lock display controls'}).click();await expect(page.getByRole('button',{name:'Display settings'})).toHaveCount(0);await expect(page.getByRole('button',{name:'Unlock display controls'})).toBeVisible()});
-test('keeps the workspace within the viewport',async({page})=>{await enterDemo(page);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth+1)).toBe(true);await navigate(page,'Settings');expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth+1)).toBe(true)});
+import { test, expect } from '@playwright/test';
+import { enterDemo, navigate } from './helpers';
+test('shows large deadlines and device-specific e-ink mode', async ({ page }) => {
+  await enterDemo(page);
+  await navigate(page, 'Display mode');
+  await expect(page.getByRole('heading', { name: 'Full paper submission' })).toBeVisible();
+  await page.getByRole('button', { name: 'Display settings' }).click();
+  await page.getByLabel('E-ink preset on this device').check();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'eink');
+  await page.getByRole('button', { name: 'Lock display controls' }).click();
+  await expect(page.getByRole('button', { name: 'Display settings' })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Unlock display controls' })).toBeVisible();
+});
+test('keeps the workspace within the viewport', async ({ page }) => {
+  await enterDemo(page);
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1),
+  ).toBe(true);
+  await navigate(page, 'Settings');
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1),
+  ).toBe(true);
+});

@@ -1,3 +1,51 @@
-import {useId} from 'react';import {validZone} from '../domain/time';
-const common=['UTC','AoE','America/New_York','America/Chicago','America/Denver','America/Los_Angeles','America/Sao_Paulo','Europe/London','Europe/Paris','Europe/Berlin','Africa/Casablanca','Asia/Dubai','Asia/Kolkata','Asia/Shanghai','Asia/Tokyo','Australia/Sydney'];
-export function TimezoneSelect({value,onChange,label='Timezone'}:{value:string;onChange:(v:string)=>void;label?:string}){const id=useId();const supported=(Intl as unknown as {supportedValuesOf?:(key:string)=>string[]}).supportedValuesOf?.('timeZone')||[];return <label className="field">{label}<input list={id} value={value} onChange={e=>onChange(e.target.value)} aria-invalid={!validZone(value)}/><datalist id={id}>{[...new Set([...common,...supported])].map(z=><option value={z} key={z}/>)}</datalist></label>}
+import { useId } from 'react';
+import { validZone } from '../domain/time';
+const common = [
+  'UTC',
+  'AoE',
+  'America/New_York',
+  'America/Chicago',
+  'America/Denver',
+  'America/Los_Angeles',
+  'America/Sao_Paulo',
+  'Europe/London',
+  'Europe/Paris',
+  'Europe/Berlin',
+  'Africa/Casablanca',
+  'Asia/Dubai',
+  'Asia/Kolkata',
+  'Asia/Shanghai',
+  'Asia/Tokyo',
+  'Australia/Sydney',
+];
+export function TimezoneSelect({
+  value,
+  onChange,
+  label = 'Timezone',
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  label?: string;
+}) {
+  const id = useId();
+  const supported =
+    (Intl as unknown as { supportedValuesOf?: (key: string) => string[] }).supportedValuesOf?.(
+      'timeZone',
+    ) || [];
+  return (
+    <label className="field">
+      {label}
+      <input
+        list={id}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        aria-invalid={!validZone(value)}
+      />
+      <datalist id={id}>
+        {[...new Set([...common, ...supported])].map((z) => (
+          <option value={z} key={z} />
+        ))}
+      </datalist>
+    </label>
+  );
+}

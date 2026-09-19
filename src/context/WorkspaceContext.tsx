@@ -1,18 +1,182 @@
-import {createContext,useContext,useEffect,useState,type ReactNode} from 'react';import {useQuery,useQueryClient} from '@tanstack/react-query';import {useAuth} from './AuthContext';import {useToast} from './ToastContext';import {supabase} from '../lib/supabase';import {cacheWorkspace,cachedWorkspace,loadDemo,saveDemo} from '../lib/storage';import {fetchWorkspace,saveEntity,deleteEntity,savePreferences} from '../lib/repository';import {errorMessage} from '../lib/errors';import {toRow} from '../lib/rows';import {validateDeadline} from '../domain/validation';import {emptyWorkspace} from '../domain/defaults';import type {Workspace,Deadline,Entity,Preferences} from '../domain/types';
-type Collection='deadlines'|'boards'|'projects'|'templates';
-interface Value{data:Workspace;loading:boolean;error:string|null;offline:boolean;saving:boolean;lastSynced:number;save:<T extends Entity>(table:Collection,item:T)=>Promise<boolean>;remove:(table:Collection,item:Entity)=>Promise<boolean>;addMany:(items:Deadline[])=>Promise<boolean>;setPreferences:(prefs:Preferences)=>Promise<boolean>;refresh:()=>void;resetDemo:()=>void}
-const Context=createContext<Value>(null!);
-export function WorkspaceProvider({children}:{children:ReactNode}){const {session,demo}=useAuth();const toast=useToast();const qc=useQueryClient();const [online,setOnline]=useState(navigator.onLine),[pending,setPending]=useState(0),[lastSynced,setSynced]=useState(0);const key=['workspace',demo?'demo':session?.user.id];const enabled=demo||!!session;
-const query=useQuery({queryKey:key,enabled,queryFn:async()=>{if(demo)return loadDemo();if(!navigator.onLine){const cached=cachedWorkspace(session!.user.id);if(cached)return cached;throw new Error('Connect to the internet to load your workspace for the first time.')}const data=await fetchWorkspace();cacheWorkspace(session!.user.id,data);setSynced(Date.now());return data},retry:1,refetchOnWindowFocus:true,refetchInterval:60000});
-const data=query.data||emptyWorkspace();
-useEffect(()=>{const up=()=>{setOnline(true);void query.refetch()},down=()=>setOnline(false);window.addEventListener('online',up);window.addEventListener('offline',down);return()=>{window.removeEventListener('online',up);window.removeEventListener('offline',down)}},[session?.user.id,demo]);
-useEffect(()=>{if(!supabase||!session||demo)return;const channel=supabase.channel('workspace:'+session.user.id);for(const table of ['boards','projects','deadlines','templates'])channel.on('postgres_changes',{event:'*',schema:'public',table,filter:`user_id=eq.${session.user.id}`},()=>{void qc.invalidateQueries({queryKey:key})});channel.on('postgres_changes',{event:'*',schema:'public',table:'profiles',filter:`id=eq.${session.user.id}`},()=>{void qc.invalidateQueries({queryKey:key})}).subscribe();return()=>{void supabase!.removeChannel(channel)}},[session?.user.id,demo]);
-async function run(fn:()=>Promise<void>){if(!demo&&!online){toast('You’re offline. Your draft stays on this device; reconnect to save.',true);return false}setPending(n=>n+1);try{await fn();if(!demo)await query.refetch();setSynced(Date.now());return true}catch(e){toast(errorMessage(e),true);if(!demo)await query.refetch();return false}finally{setPending(n=>n-1)}}
-function demoUpdate(w:Workspace){saveDemo(w);qc.setQueryData(key,w)}
-return <Context.Provider value={{data,loading:enabled&&query.isPending,error:query.error?errorMessage(query.error):null,offline:!online,saving:pending>0,lastSynced,
- save:async(table,item)=>run(async()=>{if(table==='deadlines')validateDeadline(item);const current=qc.getQueryData<Workspace>(key)||data;const exists=current[table].some(x=>x.id===item.id);if(demo){const updated={...item,version:exists?item.version+1:1,updatedAt:new Date().toISOString()};demoUpdate({...current,[table]:exists?current[table].map(x=>x.id===item.id?updated:x):[...current[table],updated]})}else await saveEntity(table,item,!exists)}),
- remove:async(table,item)=>run(async()=>{if(demo){const current=qc.getQueryData<Workspace>(key)||data;demoUpdate({...current,[table]:current[table].filter(x=>x.id!==item.id)});}else await deleteEntity(table,item.id,item.version)}),
- addMany:async(items)=>run(async()=>{items.forEach(validateDeadline);if(demo){const current=qc.getQueryData<Workspace>(key)||data;demoUpdate({...current,deadlines:[...current.deadlines,...items]});}else{const {error}=await supabase!.from('deadlines').insert(items.map(toRow));if(error)throw error}}),
- setPreferences:async(prefs)=>run(async()=>{if(demo)demoUpdate({...data,preferences:prefs});else await savePreferences(session!.user.id,prefs,data.profileVersion)}),refresh(){void query.refetch()},resetDemo(){localStorage.removeItem('stilldue:demo:v1');void query.refetch()}
- }}>{children}</Context.Provider>}
-export const useWorkspace=()=>useContext(Context);
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useAuth } from './AuthContext';
+import { useToast } from './ToastContext';
+import { supabase } from '../lib/supabase';
+import { cacheWorkspace, cachedWorkspace, loadDemo, saveDemo } from '../lib/storage';
+import { fetchWorkspace, saveEntity, deleteEntity, savePreferences } from '../lib/repository';
+import { errorMessage } from '../lib/errors';
+import { toRow } from '../lib/rows';
+import { validateDeadline } from '../domain/validation';
+import { emptyWorkspace } from '../domain/defaults';
+import type { Workspace, Deadline, Entity, Preferences } from '../domain/types';
+type Collection = 'deadlines' | 'boards' | 'projects' | 'templates';
+interface Value {
+  data: Workspace;
+  loading: boolean;
+  error: string | null;
+  offline: boolean;
+  saving: boolean;
+  lastSynced: number;
+  save: <T extends Entity>(table: Collection, item: T) => Promise<boolean>;
+  remove: (table: Collection, item: Entity) => Promise<boolean>;
+  addMany: (items: Deadline[]) => Promise<boolean>;
+  setPreferences: (prefs: Preferences) => Promise<boolean>;
+  refresh: () => void;
+  resetDemo: () => void;
+}
+const Context = createContext<Value>(null!);
+export function WorkspaceProvider({ children }: { children: ReactNode }) {
+  const { session, demo } = useAuth();
+  const toast = useToast();
+  const qc = useQueryClient();
+  const [online, setOnline] = useState(navigator.onLine),
+    [pending, setPending] = useState(0),
+    [lastSynced, setSynced] = useState(0);
+  const key = ['workspace', demo ? 'demo' : session?.user.id];
+  const enabled = demo || !!session;
+  const query = useQuery({
+    queryKey: key,
+    enabled,
+    queryFn: async () => {
+      if (demo) return loadDemo();
+      if (!navigator.onLine) {
+        const cached = cachedWorkspace(session!.user.id);
+        if (cached) return cached;
+        throw new Error('Connect to the internet to load your workspace for the first time.');
+      }
+      const data = await fetchWorkspace();
+      cacheWorkspace(session!.user.id, data);
+      setSynced(Date.now());
+      return data;
+    },
+    retry: 1,
+    refetchOnWindowFocus: true,
+    refetchInterval: 60000,
+  });
+  const data = query.data || emptyWorkspace();
+  useEffect(() => {
+    const up = () => {
+        setOnline(true);
+        void query.refetch();
+      },
+      down = () => setOnline(false);
+    window.addEventListener('online', up);
+    window.addEventListener('offline', down);
+    return () => {
+      window.removeEventListener('online', up);
+      window.removeEventListener('offline', down);
+    };
+  }, [session?.user.id, demo]);
+  useEffect(() => {
+    if (!supabase || !session || demo) return;
+    const channel = supabase.channel('workspace:' + session.user.id);
+    for (const table of ['boards', 'projects', 'deadlines', 'templates'])
+      channel.on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table, filter: `user_id=eq.${session.user.id}` },
+        () => {
+          void qc.invalidateQueries({ queryKey: key });
+        },
+      );
+    channel
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'profiles', filter: `id=eq.${session.user.id}` },
+        () => {
+          void qc.invalidateQueries({ queryKey: key });
+        },
+      )
+      .subscribe();
+    return () => {
+      void supabase!.removeChannel(channel);
+    };
+  }, [session?.user.id, demo]);
+  async function run(fn: () => Promise<void>) {
+    if (!demo && !online) {
+      toast('You’re offline. Your draft stays on this device; reconnect to save.', true);
+      return false;
+    }
+    setPending((n) => n + 1);
+    try {
+      await fn();
+      if (!demo) await query.refetch();
+      setSynced(Date.now());
+      return true;
+    } catch (e) {
+      toast(errorMessage(e), true);
+      if (!demo) await query.refetch();
+      return false;
+    } finally {
+      setPending((n) => n - 1);
+    }
+  }
+  function demoUpdate(w: Workspace) {
+    saveDemo(w);
+    qc.setQueryData(key, w);
+  }
+  return (
+    <Context.Provider
+      value={{
+        data,
+        loading: enabled && query.isPending,
+        error: query.error ? errorMessage(query.error) : null,
+        offline: !online,
+        saving: pending > 0,
+        lastSynced,
+        save: async (table, item) =>
+          run(async () => {
+            if (table === 'deadlines') validateDeadline(item);
+            const current = qc.getQueryData<Workspace>(key) || data;
+            const exists = current[table].some((x) => x.id === item.id);
+            if (demo) {
+              const updated = {
+                ...item,
+                version: exists ? item.version + 1 : 1,
+                updatedAt: new Date().toISOString(),
+              };
+              demoUpdate({
+                ...current,
+                [table]: exists
+                  ? current[table].map((x) => (x.id === item.id ? updated : x))
+                  : [...current[table], updated],
+              });
+            } else await saveEntity(table, item, !exists);
+          }),
+        remove: async (table, item) =>
+          run(async () => {
+            if (demo) {
+              const current = qc.getQueryData<Workspace>(key) || data;
+              demoUpdate({ ...current, [table]: current[table].filter((x) => x.id !== item.id) });
+            } else await deleteEntity(table, item.id, item.version);
+          }),
+        addMany: async (items) =>
+          run(async () => {
+            items.forEach(validateDeadline);
+            if (demo) {
+              const current = qc.getQueryData<Workspace>(key) || data;
+              demoUpdate({ ...current, deadlines: [...current.deadlines, ...items] });
+            } else {
+              const { error } = await supabase!.from('deadlines').insert(items.map(toRow));
+              if (error) throw error;
+            }
+          }),
+        setPreferences: async (prefs) =>
+          run(async () => {
+            if (demo) demoUpdate({ ...data, preferences: prefs });
+            else await savePreferences(session!.user.id, prefs, data.profileVersion);
+          }),
+        refresh() {
+          void query.refetch();
+        },
+        resetDemo() {
+          localStorage.removeItem('stilldue:demo:v1');
+          void query.refetch();
+        },
+      }}
+    >
+      {children}
+    </Context.Provider>
+  );
+}
+export const useWorkspace = () => useContext(Context);

@@ -1,7 +1,41 @@
-import {it,expect} from 'vitest';import {newDeadline} from '../src/domain/defaults';import {nextOccurrence} from '../src/domain/recurrence';import {instantToLocal} from '../src/domain/time';
-const d=()=>({...newDeadline(),title:'Review',certainty:'confirmed' as const,timezone:'America/New_York',dueAt:'2026-03-01T14:00:00Z',recurrence:'weekly' as const});
-it('preserves wall-clock time across DST',()=>{const next=nextOccurrence(d(),Date.parse('2026-03-02T00:00:00Z'))!;expect(next.dueAt).toBe('2026-03-08T13:00:00Z');expect(instantToLocal(next.dueAt,next.timezone)).toBe('2026-03-08T09:00')});
-it('skips missed intervals and creates only the next future occurrence',()=>{const original=d();const next=nextOccurrence(original,Date.parse('2026-04-01T00:00:00Z'))!;expect(next.dueAt).toBe('2026-04-05T13:00:00Z');expect(next.recurrenceRoot).toBe(original.id)});
-it('clamps month ends instead of overflowing into March',()=>expect(nextOccurrence({...d(),dueAt:'2026-01-31T14:00:00Z',recurrence:'monthly'},Date.parse('2026-02-01T00:00:00Z'))!.dueAt).toBe('2026-02-28T14:00:00Z'));
-it('does not recreate trashed or deactivated recurring work',()=>{expect(nextOccurrence({...d(),status:'trash'})).toBeNull();expect(nextOccurrence({...d(),status:'inactive'})).toBeNull()});
-it('resets checklist completion for a new occurrence',()=>{const original={...d(),checklist:[{id:crypto.randomUUID(),text:'Review',done:true}]};const next=nextOccurrence(original,Date.parse('2026-03-02T00:00:00Z'))!;expect(next.checklist[0].done).toBe(false);expect(next.id).not.toBe(original.id);expect(next.recurrenceRoot).toBe(original.id)});
+import { it, expect } from 'vitest';
+import { newDeadline } from '../src/domain/defaults';
+import { nextOccurrence } from '../src/domain/recurrence';
+import { instantToLocal } from '../src/domain/time';
+const d = () => ({
+  ...newDeadline(),
+  title: 'Review',
+  certainty: 'confirmed' as const,
+  timezone: 'America/New_York',
+  dueAt: '2026-03-01T14:00:00Z',
+  recurrence: 'weekly' as const,
+});
+it('preserves wall-clock time across DST', () => {
+  const next = nextOccurrence(d(), Date.parse('2026-03-02T00:00:00Z'))!;
+  expect(next.dueAt).toBe('2026-03-08T13:00:00Z');
+  expect(instantToLocal(next.dueAt, next.timezone)).toBe('2026-03-08T09:00');
+});
+it('skips missed intervals and creates only the next future occurrence', () => {
+  const original = d();
+  const next = nextOccurrence(original, Date.parse('2026-04-01T00:00:00Z'))!;
+  expect(next.dueAt).toBe('2026-04-05T13:00:00Z');
+  expect(next.recurrenceRoot).toBe(original.id);
+});
+it('clamps month ends instead of overflowing into March', () =>
+  expect(
+    nextOccurrence(
+      { ...d(), dueAt: '2026-01-31T14:00:00Z', recurrence: 'monthly' },
+      Date.parse('2026-02-01T00:00:00Z'),
+    )!.dueAt,
+  ).toBe('2026-02-28T14:00:00Z'));
+it('does not recreate trashed or deactivated recurring work', () => {
+  expect(nextOccurrence({ ...d(), status: 'trash' })).toBeNull();
+  expect(nextOccurrence({ ...d(), status: 'inactive' })).toBeNull();
+});
+it('resets checklist completion for a new occurrence', () => {
+  const original = { ...d(), checklist: [{ id: crypto.randomUUID(), text: 'Review', done: true }] };
+  const next = nextOccurrence(original, Date.parse('2026-03-02T00:00:00Z'))!;
+  expect(next.checklist[0].done).toBe(false);
+  expect(next.id).not.toBe(original.id);
+  expect(next.recurrenceRoot).toBe(original.id);
+});

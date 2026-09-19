@@ -1,2 +1,23 @@
-import {Component,type ReactNode,type ErrorInfo} from 'react';
-export class ErrorBoundary extends Component<{children:ReactNode},{failed:boolean}>{state={failed:false};static getDerivedStateFromError(){return {failed:true}}componentDidCatch(_error:Error,_info:ErrorInfo){console.error('StillDue could not render this screen.')}render(){if(this.state.failed)return <div className="fatal-error"><h1>A small interruption.</h1><p>Your saved deadlines are still there. Reload to try again.</p><button className="button primary" onClick={()=>location.reload()}>Reload StillDue</button></div>;return this.props.children}}
+import { Component, type ReactNode, type ErrorInfo } from 'react';
+export class ErrorBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+  componentDidCatch(_error: Error, _info: ErrorInfo) {
+    console.error('StillDue could not render this screen.');
+  }
+  render() {
+    if (this.state.failed)
+      return (
+        <div className="fatal-error">
+          <h1>A small interruption.</h1>
+          <p>Your saved deadlines are still there. Reload to try again.</p>
+          <button className="button primary" onClick={() => location.reload()}>
+            Reload StillDue
+          </button>
+        </div>
+      );
+    return this.props.children;
+  }
+}

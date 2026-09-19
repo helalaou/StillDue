@@ -1,2 +1,22 @@
-import {Temporal} from '@js-temporal/polyfill';import {normalizeZone} from '../../src/domain/time';
-export function quietUntil(now:string,timezone:string,start:string,end:string):string|null{if(!start||!end||start===end)return null;const z=Temporal.Instant.from(now).toZonedDateTimeISO(normalizeZone(timezone));const current=z.toPlainTime().toString().slice(0,5);const overnight=start>end;const quiet=overnight?current>=start||current<end:current>=start&&current<end;if(!quiet)return null;let date=z.toPlainDate();if(overnight&&current>=start)date=date.add({days:1});return date.toPlainDateTime(Temporal.PlainTime.from(end)).toZonedDateTime(normalizeZone(timezone),{disambiguation:'compatible'}).toInstant().toString()}
+import { Temporal } from '@js-temporal/polyfill';
+import { normalizeZone } from '../../src/domain/time';
+export function quietUntil(
+  now: string,
+  timezone: string,
+  start: string,
+  end: string,
+): string | null {
+  if (!start || !end || start === end) return null;
+  const z = Temporal.Instant.from(now).toZonedDateTimeISO(normalizeZone(timezone));
+  const current = z.toPlainTime().toString().slice(0, 5);
+  const overnight = start > end;
+  const quiet = overnight ? current >= start || current < end : current >= start && current < end;
+  if (!quiet) return null;
+  let date = z.toPlainDate();
+  if (overnight && current >= start) date = date.add({ days: 1 });
+  return date
+    .toPlainDateTime(Temporal.PlainTime.from(end))
+    .toZonedDateTime(normalizeZone(timezone), { disambiguation: 'compatible' })
+    .toInstant()
+    .toString();
+}

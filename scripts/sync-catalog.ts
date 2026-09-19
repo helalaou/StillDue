@@ -1,2 +1,2 @@
-import {syncCatalog} from '../netlify/lib/catalog-sync';
+import { syncCatalog } from '../netlify/lib/catalog-sync';
 console.log(await syncCatalog());

@@ -1,2 +1,21 @@
-import {supabase} from './supabase';import {fromRow} from './rows';import type {Conference} from '../domain/types';
-export async function fetchConferences(){if(!supabase)return [] as Conference[];let all:Conference[]=[];for(let offset=0;offset<10000;offset+=1000){const {data,error}=await supabase.from('conferences').select('*').order('id').range(offset,offset+999);if(error)throw new Error('The conference catalog could not be loaded. Your own deadlines are still available.');all=all.concat((data||[]).map(fromRow<Conference>));if(!data||data.length<1000)break}return all}
+import { supabase } from './supabase';
+import { fromRow } from './rows';
+import type { Conference } from '../domain/types';
+export async function fetchConferences() {
+  if (!supabase) return [] as Conference[];
+  let all: Conference[] = [];
+  for (let offset = 0; offset < 10000; offset += 1000) {
+    const { data, error } = await supabase
+      .from('conferences')
+      .select('*')
+      .order('id')
+      .range(offset, offset + 999);
+    if (error)
+      throw new Error(
+        'The conference catalog could not be loaded. Your own deadlines are still available.',
+      );
+    all = all.concat((data || []).map(fromRow<Conference>));
+    if (!data || data.length < 1000) break;
+  }
+  return all;
+}
