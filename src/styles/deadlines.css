@@ -428,3 +428,5 @@
 .card-next .next-step-hint {
   color: var(--muted);
 }
+
+.deadline-card h3,.detail-heading h2,.board-link h2,.conference-info h2{overflow-wrap:anywhere}
