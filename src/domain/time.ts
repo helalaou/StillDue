@@ -1,4 +1,5 @@
 import { Temporal } from '@js-temporal/polyfill';
+import { getCurrentLanguage } from '../i18n/current';
 export function normalizeZone(zone: string) {
   return zone === 'AoE' ? '-12:00' : zone;
 }
@@ -24,12 +25,19 @@ export function instantToLocal(value: string | null, zone: string, dateOnly = fa
 export function formatDate(value: string | null, zone: string, hour24 = false, dateOnly = false) {
   if (!value) return 'No date set';
   const z = Temporal.Instant.from(value).toZonedDateTimeISO(normalizeZone(zone));
-  const date = z
-    .toPlainDate()
-    .toLocaleString('en', { month: 'short', day: 'numeric', year: 'numeric' });
+  const date = z.toPlainDate().toLocaleString(getCurrentLanguage(), {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
   if (dateOnly) return date;
-  const h = hour24 ? String(z.hour).padStart(2, '0') : String(z.hour % 12 || 12);
-  return `${date} · ${h}:${String(z.minute).padStart(2, '0')}${hour24 ? '' : z.hour < 12 ? ' AM' : ' PM'}`;
+  const time = new Intl.DateTimeFormat(getCurrentLanguage(), {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: !hour24,
+    timeZone: 'UTC',
+  }).format(new Date(Date.UTC(2000, 0, 1, z.hour, z.minute)));
+  return `${date} · ${time}`;
 }
 export function dayKey(value: string, zone: string) {
   return Temporal.Instant.from(value)

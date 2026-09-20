@@ -1,12 +1,20 @@
 import type { Workspace } from '../domain/types';
 import { demoWorkspace } from '../domain/demo';
+import { defaultPreferences } from '../domain/defaults';
 const DEMO = 'stilldue:demo:v1';
+function withCurrentPreferences(workspace: Workspace): Workspace {
+  return {
+    ...workspace,
+    preferences: { ...defaultPreferences(), ...workspace.preferences },
+  };
+}
 export function loadDemo(): Workspace {
   try {
     const raw = localStorage.getItem(DEMO);
     if (raw) {
       const w = JSON.parse(raw);
-      if (Array.isArray(w.deadlines) && Array.isArray(w.boards) && w.preferences) return w;
+      if (Array.isArray(w.deadlines) && Array.isArray(w.boards) && w.preferences)
+        return withCurrentPreferences(w);
     }
   } catch {
     /* An unavailable or damaged demo cache should not prevent a fresh demo. */
@@ -25,7 +33,10 @@ export function cacheWorkspace(userId: string, w: Workspace) {
 }
 export function cachedWorkspace(userId: string): Workspace | null {
   try {
-    return JSON.parse(localStorage.getItem('stilldue:cache:' + userId) || 'null');
+    const workspace = JSON.parse(
+      localStorage.getItem('stilldue:cache:' + userId) || 'null',
+    ) as Workspace | null;
+    return workspace ? withCurrentPreferences(workspace) : null;
   } catch {
     return null;
   }

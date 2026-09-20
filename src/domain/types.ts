@@ -66,6 +66,7 @@ export interface Deadline extends Entity {
 }
 export interface Preferences {
   name: string;
+  language: import('../i18n/locales').LanguagePreference;
   theme: Theme;
   timezone: string;
   followDevice: boolean;

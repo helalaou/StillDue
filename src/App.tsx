@@ -5,6 +5,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
 import { WorkspaceProvider, useWorkspace } from './context/WorkspaceContext';
 import { useTheme } from './hooks/useTheme';
+import { useLocale } from './hooks/useLocale';
 import { AuthPage } from './pages/AuthPage';
 import { Layout } from './components/Layout';
 import { OverviewPage } from './pages/OverviewPage';
@@ -33,6 +34,7 @@ const client = new QueryClient({ defaultOptions: { queries: { retry: 1, staleTim
 function Workspace() {
   const { data, loading, error, refresh } = useWorkspace();
   useTheme(data.preferences);
+  useLocale(data.preferences.language);
   if (loading)
     return (
       <div className="loading-screen">

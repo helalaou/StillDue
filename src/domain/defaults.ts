@@ -23,6 +23,7 @@ export const entity = () => ({
 export function defaultPreferences(): Preferences {
   return {
     name: '',
+    language: 'auto',
     theme: 'system',
     timezone: detectTimezone(),
     followDevice: true,
