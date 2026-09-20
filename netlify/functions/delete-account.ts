@@ -1,4 +1,5 @@
 import { authenticatedUser, json } from '../lib/auth';
+import { matchesAccountEmail, usesGoogleSignIn } from '../../src/lib/account-auth';
 export default async function (request: Request) {
   if (request.method !== 'POST') return json({ error: 'Method not allowed' }, 405);
   try {
@@ -6,9 +7,14 @@ export default async function (request: Request) {
     const body = await request.json();
     if (body.confirmation !== 'DELETE MY ACCOUNT')
       return json({ error: 'Explicit deletion confirmation is required.' }, 400);
-    const signedAt = user.last_sign_in_at ? Date.parse(user.last_sign_in_at) : 0;
-    if (Date.now() - signedAt > 5 * 60000)
-      return json({ error: 'Please sign in again before deleting your account.' }, 403);
+    if (usesGoogleSignIn(user)) {
+      if (!matchesAccountEmail(user, body.confirmationEmail))
+        return json({ error: 'Type your account email exactly to confirm deletion.' }, 400);
+    } else {
+      const signedAt = user.last_sign_in_at ? Date.parse(user.last_sign_in_at) : 0;
+      if (Date.now() - signedAt > 5 * 60000)
+        return json({ error: 'Please sign in again before deleting your account.' }, 403);
+    }
     const { error } = await client.auth.admin.deleteUser(user.id);
     if (error) throw error;
     return json({ deleted: true });

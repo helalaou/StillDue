@@ -7,6 +7,7 @@ import { useToast } from '../context/ToastContext';
 import { Modal } from './Modal';
 import { supabase } from '../lib/supabase';
 import { errorMessage } from '../lib/errors';
+import { matchesAccountEmail, usesGoogleSignIn } from '../lib/account-auth';
 export function AccountSettings() {
   const { demo, session, signOut } = useAuth(),
     { resetDemo } = useWorkspace(),
@@ -14,23 +15,32 @@ export function AccountSettings() {
     navigate = useNavigate();
   const [confirm, setConfirm] = useState(false),
     [password, setPassword] = useState(''),
+    [confirmationEmail, setConfirmationEmail] = useState(''),
     [busy, setBusy] = useState(false);
+  const googleAccount = !!session && usesGoogleSignIn(session.user);
   async function removeAccount() {
     if (!session || !supabase) return;
     setBusy(true);
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: session.user.email!,
-        password,
-      });
-      if (error) throw error;
+      let accessToken = session.access_token;
+      if (!googleAccount) {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: session.user.email!,
+          password,
+        });
+        if (error) throw error;
+        accessToken = data.session!.access_token;
+      }
       const response = await fetch('/.netlify/functions/delete-account', {
         method: 'POST',
         headers: {
-          Authorization: 'Bearer ' + data.session!.access_token,
+          Authorization: 'Bearer ' + accessToken,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ confirmation: 'DELETE MY ACCOUNT' }),
+        body: JSON.stringify({
+          confirmation: 'DELETE MY ACCOUNT',
+          confirmationEmail: googleAccount ? confirmationEmail : undefined,
+        }),
       });
       if (!response.ok)
         throw new Error((await response.json()).error || 'Account deletion failed.');
@@ -81,22 +91,37 @@ export function AccountSettings() {
           <p>
             This removes your account and all its active application data. This cannot be undone.
           </p>
-          <label className="field">
-            Confirm with your password
-            <input
-              type="password"
-              autoComplete="current-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </label>
+          {googleAccount ? (
+            <label className="field">
+              Type {session?.user.email} to confirm
+              <input
+                type="email"
+                autoComplete="off"
+                value={confirmationEmail}
+                onChange={(e) => setConfirmationEmail(e.target.value)}
+              />
+            </label>
+          ) : (
+            <label className="field">
+              Confirm with your password
+              <input
+                type="password"
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </label>
+          )}
           <div className="form-actions">
             <button className="button secondary" onClick={() => setConfirm(false)}>
               Keep my account
             </button>
             <button
               className="button danger"
-              disabled={!password || busy}
+              disabled={
+                busy ||
+                (googleAccount ? !matchesAccountEmail(session!.user, confirmationEmail) : !password)
+              }
               onClick={() => void removeAccount()}
             >
               {busy ? 'Deleting…' : 'Delete permanently'}
