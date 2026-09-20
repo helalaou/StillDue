@@ -1,5 +1,5 @@
 import { useServiceStatus } from '../hooks/useServiceStatus';
-import { useState } from 'react';
+import { useState, type CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Check, Monitor, Focus, Leaf, FlaskConical } from 'lucide-react';
 import { useWorkspace } from '../context/WorkspaceContext';
@@ -13,6 +13,7 @@ import { validZone } from '../domain/time';
 import type { Preferences } from '../domain/types';
 import { applyLanguage } from '../i18n';
 import { supportedLanguages, type LanguagePreference } from '../i18n/locales';
+import { cardFonts, cardFontStack } from '../config/cardFonts';
 export function SettingsPage() {
   const { data, setPreferences, saving } = useWorkspace(),
     toast = useToast();
@@ -175,6 +176,20 @@ export function SettingsPage() {
               />
             </label>
             <label className="field">
+              Card typeface
+              <select
+                data-testid="card-font-select"
+                value={p.cardFont}
+                onChange={(e) => update({ cardFont: e.target.value as Preferences['cardFont'] })}
+              >
+                {cardFonts.map((font) => (
+                  <option value={font.id} key={font.id}>
+                    {font.name} · {font.note}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="field">
               Card spacing
               <select
                 value={p.density}
@@ -229,7 +244,12 @@ export function SettingsPage() {
           <div
             className="settings-preview"
             data-theme={p.theme}
-            style={{ fontSize: p.fontScale + 'rem' }}
+            style={
+              {
+                fontSize: p.fontScale + 'rem',
+                '--card-font-family': cardFontStack(p.cardFont),
+              } as CSSProperties
+            }
           >
             <DeadlineCard item={sample} prefs={p} now={Date.now()} onOpen={() => {}} display />
           </div>

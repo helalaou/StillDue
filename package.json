@@ -19,6 +19,8 @@
     "catalog:sync": "tsx scripts/sync-catalog.ts"
   },
   "dependencies": {
+    "@fontsource/atkinson-hyperlegible": "^5.3.0",
+    "@fontsource/lexend": "^5.3.0",
     "@js-temporal/polyfill": "^0.5.1",
     "@supabase/supabase-js": "^2.57.4",
     "@tanstack/react-query": "^5.90.0",

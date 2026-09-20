@@ -22,6 +22,7 @@
   --shadow: 0 10px 36px #163e3506;
   --radius: 20px;
   --font-scale: 1;
+  --card-font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --space-scale: 1;
   font-size: calc(16px * var(--font-scale));
   color-scheme: light;

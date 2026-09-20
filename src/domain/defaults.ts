@@ -25,6 +25,7 @@ export function defaultPreferences(): Preferences {
     name: '',
     language: 'auto',
     theme: 'system',
+    cardFont: 'system',
     timezone: detectTimezone(),
     followDevice: true,
     hour24: false,

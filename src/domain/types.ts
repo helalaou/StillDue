@@ -68,6 +68,7 @@ export interface Preferences {
   name: string;
   language: import('../i18n/locales').LanguagePreference;
   theme: Theme;
+  cardFont: import('../config/cardFonts').CardFontId;
   timezone: string;
   followDevice: boolean;
   hour24: boolean;
