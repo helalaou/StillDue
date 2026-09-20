@@ -110,20 +110,75 @@
 }
 .google-button {
   justify-content: center;
-  background: var(--panel);
-  border: 1px solid var(--line-strong);
+  position: relative;
+  background: var(--surface);
+  border: 2px solid color-mix(in srgb, var(--accent) 78%, var(--line));
   color: var(--text);
-  min-height: 48px;
+  min-height: 70px;
+  padding: 12px 52px;
   margin-top: 28px;
+  border-radius: 14px;
+  box-shadow: 0 10px 28px color-mix(in srgb, var(--accent) 13%, transparent);
+  transition:
+    transform 150ms ease,
+    border-color 150ms ease,
+    box-shadow 150ms ease,
+    background 150ms ease;
 }
 .google-button:hover:not(:disabled) {
-  background: var(--surface-soft);
-  border-color: var(--muted);
+  background: color-mix(in srgb, var(--accent-soft) 45%, var(--surface));
+  border-color: var(--accent);
+  box-shadow: 0 13px 34px color-mix(in srgb, var(--accent) 18%, transparent);
+  transform: translateY(-1px);
 }
 .google-mark {
-  width: 19px;
-  height: 19px;
+  position: absolute;
+  left: 20px;
+  width: 24px;
+  height: 24px;
   flex: 0 0 auto;
+}
+.google-button-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  line-height: 1.15;
+}
+.google-button-copy strong {
+  font-size: 1rem;
+  font-weight: 700;
+}
+.google-button-copy small {
+  color: var(--muted);
+  font-size: 0.6875rem;
+  font-weight: 500;
+}
+.google-button-arrow {
+  position: absolute;
+  right: 19px;
+  color: var(--accent);
+}
+.email-auth-form .field {
+  gap: 7px;
+  margin-bottom: 15px;
+  font-size: 0.8125rem;
+}
+.email-auth-form input:not([type='checkbox']):not([type='range']) {
+  min-height: 42px;
+  padding: 10px 12px;
+}
+.auth-email-submit {
+  min-height: 42px;
+  padding-block: 9px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  background: transparent;
+}
+.auth-email-submit:hover:not(:disabled) {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
 }
 .provider-pending {
   text-align: center;
@@ -200,5 +255,9 @@
   }
   .auth-form-wrap h2 {
     font-size: 2.188rem;
+  }
+  .google-button {
+    min-height: 66px;
+    padding-inline: 48px;
   }
 }

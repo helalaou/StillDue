@@ -183,7 +183,11 @@ export function AuthPage() {
                 onClick={signInWithGoogle}
               >
                 <GoogleMark />
-                {t('Continue with Google')}
+                <span className="google-button-copy">
+                  <strong>{t('Continue with Google')}</strong>
+                  <small>{t('Recommended · quick and secure')}</small>
+                </span>
+                <ArrowRight className="google-button-arrow" size={20} />
               </button>
               {!service.isLoading && !service.data?.googleLogin && (
                 <p className="provider-pending">Google sign-in is being connected.</p>
@@ -193,7 +197,7 @@ export function AuthPage() {
               </div>
             </>
           )}
-          <form onSubmit={submit}>
+          <form className="email-auth-form" onSubmit={submit}>
             {mode === 'signup' && !auth.recovery && (
               <label className="field">
                 Your name
@@ -256,7 +260,7 @@ export function AuthPage() {
                 {message}
               </p>
             )}
-            <button className="button primary full" disabled={busy}>
+            <button className="button secondary full auth-email-submit" disabled={busy}>
               {busy
                 ? 'One moment…'
                 : auth.recovery
