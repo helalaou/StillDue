@@ -2,7 +2,7 @@
 
 Private account data stays in the owner’s Supabase project and is accessible through account-level policies. Public conference records are separate from private deadlines. StillDue does not include advertising, tracking pixels, or an analytics SDK.
 
-An account stores profile preferences, boards, projects, deadlines, checklist content, templates, and reminder job metadata. Password handling belongs to Supabase Auth; the app does not store plaintext passwords. User notes are rendered as text, never injected as HTML.
+An account stores profile preferences, boards, projects, deadlines, checklist content, templates, and reminder job metadata. Password handling belongs to Supabase Auth; the app does not store plaintext passwords. Google login receives the account identifier, email address, name, and avatar metadata needed for authentication; StillDue does not request access to Google Drive, Calendar, contacts, or mail. User notes are rendered as text, never injected as HTML.
 
 For offline viewing, a signed-in device caches its last workspace snapshot in local storage. Drafts are also stored there. This is device-local storage, not encrypted personal vault storage. Logout clears that account’s workspace cache and drafts. Use an appropriate device account on shared hardware.
 

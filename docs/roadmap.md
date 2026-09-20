@@ -2,7 +2,7 @@
 
 ## Ready in this release
 
-Private workspaces, password authentication flows, deadline lifecycle, project milestones, templates, field/subfield conference discovery, source-date review, timezone handling, recurrence, account/device customization, focus and display views, trash, portable data, offline read cache, draft recovery, and server jobs.
+Private workspaces, password and Google authentication flows, deadline lifecycle, project milestones, templates, field/subfield conference discovery, source-date review, timezone handling, recurrence, account/device customization, focus and display views, trash, portable data, offline read cache, draft recovery, and server jobs.
 
 ## Deployment prerequisite still pending
 
@@ -10,7 +10,7 @@ A verified sending domain and production email provider. Authentication emails a
 
 ## Later
 
-- Google login and additional account recovery options.
+- Additional account recovery options.
 - Shared lab boards, invitations, assignments, and explicit membership roles.
 - Native mobile packaging and reliable platform push notifications.
 - Full offline editing with a merge queue and conflict review.

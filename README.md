@@ -7,7 +7,7 @@ The app keeps that glanceable view while making it possible to edit from a phone
 
 ## What you can do
 
-- Create private accounts with email and password; verification and password recovery are prepared for a production email provider.
+- Sign in with Google or use a private email-and-password account. Email verification and password recovery are prepared for a production email provider.
 - Organize deadlines into boards and projects. Add a next action, checklist, priority, tags, notes, and research details.
 - Track confirmed dates, estimates, unannounced dates, or ongoing work. Keep personal targets separate from official deadlines.
 - Search, filter, pin, save views, perform bulk actions, and switch between cards, lists, a calendar, and a smaller focus view.
@@ -96,7 +96,7 @@ See [testing](docs/testing.md) for the cases and [architecture](docs/architectur
 
 The frontend and scheduled functions run on Netlify. Supabase hosts authentication, PostgreSQL, and account-scoped live updates. The production deployment is [stilldue.netlify.app](https://stilldue.netlify.app).
 
-**Email delivery is intentionally pending for the initial release.** Password login works for confirmed accounts; public signup verification, password resets, deadline emails, and weekly overviews require the owner to connect a sending provider. The UI reports this state rather than promising delivery. Scheduled email jobs remain inactive while provider credentials are absent.
+**Email delivery is intentionally pending for the initial release.** Password login works for confirmed accounts; public email signup verification, password resets, deadline emails, and weekly overviews require the owner to connect a sending provider. Google login is independent of SMTP and becomes available after its OAuth client is connected. The UI reports provider readiness rather than promising delivery. Scheduled email jobs remain inactive while email credentials are absent.
 
 Browser wake lock, fullscreen, installation, and e-ink behavior depend on the device. Vendor-specific e-ink appliances need a separate adapter. Large catalogs and large user bases may require pagination and worker-capacity changes; this is a personal-workspace release, not an enterprise service-level commitment.
 
@@ -104,6 +104,6 @@ Browser wake lock, fullscreen, installation, and e-ink behavior depend on the de
 
 The repository is private initially, with an open-source-ready structure. The code and original StillDue brand assets are licensed under [MIT](LICENSE). Third-party notices are in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). See [CONTRIBUTING.md](CONTRIBUTING.md) and [SECURITY.md](SECURITY.md).
 
-Google login, shared lab permissions, native mobile apps, two-way calendar synchronization, and device-specific e-ink feeds are tracked in the [roadmap](docs/roadmap.md).
+Shared lab permissions, native mobile apps, two-way calendar synchronization, and device-specific e-ink feeds are tracked in the [roadmap](docs/roadmap.md).
 
 The initial commit timeline is reconstructed across one month at the project owner’s request. Commits represent actual source changes; their displayed dates are not a record of elapsed development time.
