@@ -52,6 +52,18 @@ input[type='range'] {
 .form-section {
   padding-top: 24px;
 }
+.deadline-timing {
+  margin: 8px 0 22px;
+  padding: 18px 18px 8px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface-alt);
+}
+.deadline-timing legend {
+  padding: 0 8px;
+  font-size: 0.875rem;
+  font-weight: 650;
+}
 .form-actions {
   display: flex;
   align-items: center;

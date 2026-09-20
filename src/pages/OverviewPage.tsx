@@ -20,7 +20,7 @@ import { DeadlineEditor } from '../components/DeadlineEditor';
 import { DeadlineDetail } from '../components/DeadlineDetail';
 import { EmptyState } from '../components/EmptyState';
 import { ConfirmDialog } from '../components/ConfirmDialog';
-import { newDeadline } from '../domain/defaults';
+import { newScheduledDeadline } from '../domain/defaults';
 import { filterDeadlines } from '../domain/filter';
 import { complete, trash, effectiveStatus } from '../domain/lifecycle';
 import { useClock } from '../hooks/useClock';
@@ -118,7 +118,7 @@ export function OverviewPage({
         ) : (
           <button
             className="button primary"
-            onClick={() => setEditor(newDeadline(boardId || data.boards[0]?.id || null))}
+            onClick={() => setEditor(newScheduledDeadline(boardId || data.boards[0]?.id || null))}
           >
             <Plus size={19} />
             {t('New deadline')}
@@ -380,7 +380,7 @@ export function OverviewPage({
               <div className="inline-actions">
                 <button
                   className="button primary"
-                  onClick={() => setEditor(newDeadline(data.boards[0]?.id || null))}
+                  onClick={() => setEditor(newScheduledDeadline(data.boards[0]?.id || null))}
                 >
                   <Plus size={17} />
                   Add a deadline

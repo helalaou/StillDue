@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import { useWorkspace } from '../context/WorkspaceContext';
 import { calendarDays, dayKey } from '../domain/time';
-import { newDeadline } from '../domain/defaults';
+import { newScheduledDeadline } from '../domain/defaults';
 import { DeadlineEditor } from '../components/DeadlineEditor';
 import { DeadlineDetail } from '../components/DeadlineDetail';
 import type { Deadline } from '../domain/types';
@@ -30,7 +30,7 @@ export function CalendarPage() {
         </div>
         <button
           className="button primary"
-          onClick={() => setEditor(newDeadline(data.boards[0]?.id || null))}
+          onClick={() => setEditor(newScheduledDeadline(data.boards[0]?.id || null))}
         >
           <Plus size={18} />
           {t('New deadline')}

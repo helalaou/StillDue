@@ -4,7 +4,7 @@ import { Search, ArrowUpRight, Plus, Globe2, RefreshCw, ExternalLink } from 'luc
 import { fetchConferences } from '../lib/catalog';
 import { fields, subfieldName } from '../domain/taxonomy';
 import { formatDate } from '../domain/time';
-import { newDeadline } from '../domain/defaults';
+import { newDeadline, newScheduledDeadline } from '../domain/defaults';
 import { useWorkspace } from '../context/WorkspaceContext';
 import { useToast } from '../context/ToastContext';
 import { EmptyState } from '../components/EmptyState';
@@ -97,7 +97,7 @@ export function DiscoverPage() {
         <button
           className="button secondary"
           onClick={() =>
-            setEditor({ ...newDeadline(data.boards[0]?.id || null), kind: 'Research' })
+            setEditor({ ...newScheduledDeadline(data.boards[0]?.id || null), kind: 'Research' })
           }
         >
           <Plus size={17} />

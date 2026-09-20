@@ -80,6 +80,9 @@ export function newDeadline(boardId: string | null = null): Deadline {
     kind: 'Deadline',
   };
 }
+export function newScheduledDeadline(boardId: string | null = null): Deadline {
+  return { ...newDeadline(boardId), certainty: 'confirmed' };
+}
 export function emptyWorkspace(): Workspace {
   return {
     boards: [],

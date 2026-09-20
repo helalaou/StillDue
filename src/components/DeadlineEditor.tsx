@@ -20,7 +20,9 @@ export function DeadlineEditor({ item, onClose }: { item: Deadline; onClose: () 
     'stilldue:draft:' +
       (demo ? 'demo' : session!.user.id) +
       ':' +
-      (exists ? item.id : 'new' + (item.research.sourceId ? ':' + item.research.sourceId : '')),
+      (exists
+        ? item.id
+        : 'new:' + (item.research.sourceId ? item.research.sourceId : item.kind.toLowerCase())),
     {
       record: item,
       due: instantToLocal(item.dueAt, item.timezone, item.dateOnly),
@@ -28,6 +30,8 @@ export function DeadlineEditor({ item, onClose }: { item: Deadline; onClose: () 
     },
   );
   const d = draft.record;
+  const dueDate = draft.due.slice(0, 10);
+  const dueTime = draft.due.includes('T') ? draft.due.slice(11, 16) : '';
   const latest = data.deadlines.find((x) => x.id === d.id);
   const hasConflict = !!latest && latest.version !== d.version;
   const [tab, setTab] = useState('basics'),
@@ -92,6 +96,86 @@ export function DeadlineEditor({ item, onClose }: { item: Deadline; onClose: () 
             onChange={(e) => update({ title: e.target.value })}
           />
         </label>
+        <fieldset className="deadline-timing">
+          <legend>Deadline timing</legend>
+          <div className="form-grid">
+            <label className="field">
+              Schedule
+              <select
+                value={d.certainty}
+                onChange={(e) =>
+                  update({
+                    certainty: e.target.value as Deadline['certainty'],
+                    recurrence: 'none',
+                  })
+                }
+              >
+                <option value="confirmed">Confirmed deadline</option>
+                <option value="estimated">Estimated date</option>
+                <option value="tba">Date not announced</option>
+                <option value="ongoing">Ongoing · no deadline</option>
+              </select>
+            </label>
+            {['confirmed', 'estimated'].includes(d.certainty) && (
+              <label className="field">
+                Due date
+                <input
+                  type="date"
+                  required
+                  value={dueDate}
+                  onChange={(e) => {
+                    const date = e.target.value;
+                    setDraft((v) => ({
+                      ...v,
+                      due: date ? (d.dateOnly ? date : `${date}T${dueTime || '23:59'}`) : '',
+                    }));
+                  }}
+                />
+              </label>
+            )}
+          </div>
+          {['confirmed', 'estimated'].includes(d.certainty) && (
+            <>
+              <div className="form-grid">
+                <label className="field">
+                  Exact time
+                  <input
+                    type="time"
+                    required={!d.dateOnly}
+                    disabled={d.dateOnly || !dueDate}
+                    value={d.dateOnly ? '' : dueTime}
+                    onChange={(e) => {
+                      const time = e.target.value;
+                      if (dueDate)
+                        setDraft((v) => ({ ...v, due: time ? `${dueDate}T${time}` : dueDate }));
+                    }}
+                  />
+                  <small>Uses the timezone selected beside it.</small>
+                </label>
+                <TimezoneSelect value={d.timezone} onChange={(v) => update({ timezone: v })} />
+              </div>
+              <label className="check-field">
+                <input
+                  type="checkbox"
+                  checked={d.dateOnly}
+                  onChange={(e) => {
+                    const checked = e.target.checked;
+                    setDraft((v) => ({
+                      ...v,
+                      record: { ...v.record, dateOnly: checked },
+                      due: checked
+                        ? v.due.slice(0, 10)
+                        : v.due
+                          ? v.due.slice(0, 10) + 'T23:59'
+                          : '',
+                    }));
+                  }}
+                />
+                Date only · due at the end of the day in this timezone
+              </label>
+            </>
+          )}
+        </fieldset>
         <div className="tabs" role="tablist" aria-label="Deadline details">
           {[
             ['basics', 'The essentials'],
@@ -144,23 +228,6 @@ export function DeadlineEditor({ item, onClose }: { item: Deadline; onClose: () 
                 </select>
               </label>
               <label className="field">
-                Date certainty
-                <select
-                  value={d.certainty}
-                  onChange={(e) =>
-                    update({
-                      certainty: e.target.value as Deadline['certainty'],
-                      recurrence: 'none',
-                    })
-                  }
-                >
-                  <option value="confirmed">Confirmed deadline</option>
-                  <option value="estimated">Estimated date</option>
-                  <option value="tba">Date not announced</option>
-                  <option value="ongoing">Ongoing · no deadline</option>
-                </select>
-              </label>
-              <label className="field">
                 Priority
                 <select
                   value={d.priority}
@@ -173,69 +240,36 @@ export function DeadlineEditor({ item, onClose }: { item: Deadline; onClose: () 
               </label>
             </div>
             {['confirmed', 'estimated'].includes(d.certainty) && (
-              <>
+              <details className="advanced">
+                <summary>
+                  Personal target & repetition <ChevronDown size={15} />
+                </summary>
                 <div className="form-grid">
                   <label className="field">
-                    {d.certainty === 'estimated' ? 'Estimated date' : 'Official deadline'}
+                    Personal target (optional)
                     <input
-                      type={d.dateOnly ? 'date' : 'datetime-local'}
-                      required
-                      value={draft.due}
-                      onChange={(e) => setDraft((v) => ({ ...v, due: e.target.value }))}
+                      type="datetime-local"
+                      value={draft.target}
+                      onChange={(e) => setDraft((v) => ({ ...v, target: e.target.value }))}
                     />
                   </label>
-                  <TimezoneSelect value={d.timezone} onChange={(v) => update({ timezone: v })} />
+                  <label className="field">
+                    Repeat
+                    <select
+                      disabled={d.certainty !== 'confirmed'}
+                      value={d.recurrence}
+                      onChange={(e) =>
+                        update({ recurrence: e.target.value as Deadline['recurrence'] })
+                      }
+                    >
+                      <option value="none">Does not repeat</option>
+                      <option value="weekly">Every week</option>
+                      <option value="monthly">Every month</option>
+                      <option value="yearly">Every year</option>
+                    </select>
+                  </label>
                 </div>
-                <label className="check-field">
-                  <input
-                    type="checkbox"
-                    checked={d.dateOnly}
-                    onChange={(e) => {
-                      const checked = e.target.checked;
-                      setDraft((v) => ({
-                        ...v,
-                        record: { ...v.record, dateOnly: checked },
-                        due: checked
-                          ? v.due.slice(0, 10)
-                          : v.due
-                            ? v.due.slice(0, 10) + 'T23:59'
-                            : '',
-                      }));
-                    }}
-                  />
-                  Date only · due at the end of the day in this timezone
-                </label>
-                <details className="advanced">
-                  <summary>
-                    Personal target & repetition <ChevronDown size={15} />
-                  </summary>
-                  <div className="form-grid">
-                    <label className="field">
-                      Personal target (optional)
-                      <input
-                        type="datetime-local"
-                        value={draft.target}
-                        onChange={(e) => setDraft((v) => ({ ...v, target: e.target.value }))}
-                      />
-                    </label>
-                    <label className="field">
-                      Repeat
-                      <select
-                        disabled={d.certainty !== 'confirmed'}
-                        value={d.recurrence}
-                        onChange={(e) =>
-                          update({ recurrence: e.target.value as Deadline['recurrence'] })
-                        }
-                      >
-                        <option value="none">Does not repeat</option>
-                        <option value="weekly">Every week</option>
-                        <option value="monthly">Every month</option>
-                        <option value="yearly">Every year</option>
-                      </select>
-                    </label>
-                  </div>
-                </details>
-              </>
+              </details>
             )}
             <div className="form-grid">
               <label className="field">
