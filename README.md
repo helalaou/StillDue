@@ -30,6 +30,7 @@ For browser-capable e-ink tablets and monitors, the monochrome preset removes an
 - Use research and everyday templates, or create a reusable template of your own.
 - Discover computer science conferences by field and subfield. Other fields support manual entry today.
 - Choose light, dark, device-following, or monochrome themes; adjust text size, density, columns, visible details, and urgency thresholds.
+- Choose from nine card typefaces, including Atkinson Hyperlegible and Lexend for clear long-glance reading. The selection is saved with the workspace and applies to normal and full-screen deadline cards.
 - Follow the device language or choose from English, Spanish, French, German, Portuguese, Italian, Dutch, Arabic, Chinese, Japanese, Korean, Hindi, Russian, and Turkish. Arabic uses a right-to-left layout, and dates and times follow the selected locale.
 - Open a large display view with fullscreen controls, an optional clock, keep-awake support, and a device-specific e-ink preset.
 - Move deleted deadlines to Trash, undo the deletion, or restore them later.
