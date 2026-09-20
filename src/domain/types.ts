@@ -77,7 +77,7 @@ export interface Preferences {
   fontScale: number;
   density: 'comfortable' | 'compact';
   columns: number;
-  countdown: 'days' | 'detailed';
+  countdown: 'days' | 'hours' | 'detailed' | 'seconds';
   urgentDays: number;
   warningDays: number;
   displayRefresh: number;

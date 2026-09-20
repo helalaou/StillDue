@@ -30,6 +30,7 @@ For browser-capable e-ink tablets and monitors, the monochrome preset removes an
 - Use research and everyday templates, or create a reusable template of your own.
 - Discover computer science conferences by field and subfield. Other fields support manual entry today.
 - Choose light, dark, device-following, or monochrome themes; adjust text size, density, columns, visible details, and urgency thresholds.
+- Choose countdown granularity from a calm adaptive view through live days, hours, minutes, and seconds.
 - Choose from nine card typefaces, including Atkinson Hyperlegible and Lexend for clear long-glance reading. The selection is saved with the workspace and applies to normal and full-screen deadline cards.
 - See urgency at a glance with default-on green, orange, and red card cues. The thresholds remain adjustable, the elapsed-time bar uses the same cue, and the color system can be disabled in Settings.
 - Follow the device language or choose from English, Spanish, French, German, Portuguese, Italian, Dutch, Arabic, Chinese, Japanese, Korean, Hindi, Russian, and Turkish. Arabic uses a right-to-left layout, and dates and times follow the selected locale.

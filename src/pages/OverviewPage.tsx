@@ -47,8 +47,8 @@ export function OverviewPage({
     [selection, setSelection] = useState<string[]>([]),
     [selecting, setSelecting] = useState(false),
     [emptyTrash, setEmptyTrash] = useState(false);
-  const now = useClock(30),
-    prefs = data.preferences;
+  const prefs = data.preferences,
+    now = useClock(prefs.countdown === 'seconds' ? 1 : 30);
   const active = data.deadlines.filter((d) => effectiveStatus(d, prefs, now) === 'active');
   const filtered = filterDeadlines(
     data.deadlines,

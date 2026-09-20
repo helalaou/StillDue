@@ -78,8 +78,10 @@ export function DeadlineCard({
         {c.value}
         <span>{t(c.label)}</span>
       </div>
-      {prefs.countdown === 'detailed' && item.certainty === 'confirmed' && (
-        <div className="detailed-time">{detailedRemaining(item, now)}</div>
+      {prefs.countdown !== 'days' && item.certainty === 'confirmed' && (
+        <div className="detailed-time" aria-label="Precise time remaining">
+          {detailedRemaining(item, now, prefs.countdown)}
+        </div>
       )}
       <h3>
         {display ? (

@@ -36,7 +36,7 @@ export function DisplayPage() {
     ...data.preferences,
     ...(eink ? { theme: 'eink' as const, countdown: 'days' as const } : {}),
   };
-  const now = useClock(eink ? 300 : prefs.displayRefresh),
+  const now = useClock(eink ? 300 : prefs.countdown === 'seconds' ? 1 : prefs.displayRefresh),
     wakeStatus = useWakeLock(awake);
   const items = filterDeadlines(
     data.deadlines,

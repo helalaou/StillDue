@@ -1,4 +1,4 @@
-import type { Deadline } from './types';
+import type { Deadline, Preferences } from './types';
 export function countdown(d: Deadline, now = Date.now()) {
   if (d.certainty === 'tba') return { value: 'TBA', label: 'date to be announced', days: Infinity };
   if (!d.dueAt) return { value: '∞', label: 'room to keep going', days: Infinity };
@@ -10,12 +10,24 @@ export function countdown(d: Deadline, now = Date.now()) {
   if (ms < 86400000) return { value: String(Math.ceil(ms / 3600000)), label: 'hours to go', days };
   return { value: String(days).padStart(2, '0'), label: 'days to go', days };
 }
-export function detailedRemaining(d: Deadline, now = Date.now()) {
+export function detailedRemaining(
+  d: Deadline,
+  now = Date.now(),
+  granularity: Preferences['countdown'] = 'detailed',
+) {
   if (!d.dueAt || d.certainty !== 'confirmed') return '';
-  let m = Math.max(0, Math.floor((Date.parse(d.dueAt) - now) / 60000));
-  const days = Math.floor(m / 1440);
-  m %= 1440;
-  return `${days}d ${Math.floor(m / 60)}h ${m % 60}m`;
+  let seconds = Math.max(0, Math.floor((Date.parse(d.dueAt) - now) / 1000));
+  const days = Math.floor(seconds / 86400);
+  seconds %= 86400;
+  const hours = Math.floor(seconds / 3600);
+  seconds %= 3600;
+  const minutes = Math.floor(seconds / 60);
+  seconds %= 60;
+  const parts = [`${days}d`, `${String(hours).padStart(2, '0')}h`];
+  if (granularity === 'detailed' || granularity === 'seconds')
+    parts.push(`${String(minutes).padStart(2, '0')}m`);
+  if (granularity === 'seconds') parts.push(`${String(seconds).padStart(2, '0')}s`);
+  return parts.join(' ');
 }
 export function elapsed(d: Deadline, now = Date.now()) {
   if (!d.dueAt) return 0;

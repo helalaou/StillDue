@@ -85,6 +85,10 @@
 .display-grid .card-date {
   font-size: calc(0.9375rem * var(--display-card-scale));
 }
+.display-grid .detailed-time {
+  font-size: calc(1rem * var(--display-card-scale));
+  letter-spacing: 0.06em;
+}
 .display-grid .board-label {
   font-size: calc(0.75rem * var(--display-card-scale));
 }

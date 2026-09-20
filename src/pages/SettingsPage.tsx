@@ -14,6 +14,7 @@ import type { Preferences } from '../domain/types';
 import { applyLanguage } from '../i18n';
 import { supportedLanguages, type LanguagePreference } from '../i18n/locales';
 import { cardFonts, cardFontStack } from '../config/cardFonts';
+import { useClock } from '../hooks/useClock';
 import {
   accentForTheme,
   accentSoftForTheme,
@@ -26,19 +27,20 @@ export function SettingsPage() {
   const service = useServiceStatus();
   const { t } = useTranslation();
   const [p, setP] = useState<Preferences>(data.preferences);
+  const previewNow = useClock(p.countdown === 'seconds' ? 1 : 30);
   const previewTheme = resolveTheme(
     p.theme,
     window.matchMedia('(prefers-color-scheme: dark)').matches,
   );
   const update = (v: Partial<Preferences>) => setP((x) => ({ ...x, ...v }));
-  const sample = {
+  const [sample] = useState(() => ({
     ...newDeadline(),
     title: 'Your next good idea',
     kind: 'Research',
     certainty: 'confirmed' as const,
     dueAt: new Date(Date.now() + 12 * 86400000).toISOString(),
     nextAction: 'Start with one small, possible step.',
-  };
+  }));
   const presets = [
     {
       name: 'Research',
@@ -239,14 +241,18 @@ export function SettingsPage() {
               </select>
             </label>
             <label className="field">
-              Countdown detail
+              Countdown granularity
               <select
+                data-testid="countdown-granularity-select"
                 value={p.countdown}
                 onChange={(e) => update({ countdown: e.target.value as Preferences['countdown'] })}
               >
-                <option value="days">Days (hours when close)</option>
-                <option value="detailed">Days, hours & minutes</option>
+                <option value="days">Adaptive · days, then hours when close</option>
+                <option value="hours">Days + hours · 54d 06h</option>
+                <option value="detailed">Days + hours + minutes · 54d 06h 46m</option>
+                <option value="seconds">Days + hours + minutes + seconds · 54d 06h 46m 47s</option>
               </select>
+              <small>Seconds update live while StillDue is open.</small>
             </label>
           </div>
           <div className="check-row">
@@ -279,7 +285,7 @@ export function SettingsPage() {
               } as CSSProperties
             }
           >
-            <DeadlineCard item={sample} prefs={p} now={Date.now()} onOpen={() => {}} display />
+            <DeadlineCard item={sample} prefs={p} now={previewNow} onOpen={() => {}} display />
           </div>
         </div>
       </section>
