@@ -20,7 +20,7 @@ test('orders nearest deadlines first and applies configurable urgency colors', a
 
   await navigate(page, 'Settings');
   await page.getByTestId('urgency-colors-toggle').uncheck();
-  await page.getByRole('button', { name: 'Save settings', exact: true }).first().click();
+  await expect(page.getByRole('status')).toContainText('Saved automatically');
   await navigate(page, 'Overview');
   await expect(page.locator('.deadline-card').first()).not.toHaveClass(/urgency-colors/);
 });

@@ -1,9 +1,8 @@
 import { useServiceStatus } from '../hooks/useServiceStatus';
-import { useState, type CSSProperties } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Check, Monitor, Focus, Leaf, FlaskConical } from 'lucide-react';
+import { Check, LoaderCircle, Monitor, Focus, Leaf, FlaskConical } from 'lucide-react';
 import { useWorkspace } from '../context/WorkspaceContext';
-import { useToast } from '../context/ToastContext';
 import { TimezoneSelect } from '../components/TimezoneSelect';
 import { DataSettings } from '../components/DataSettings';
 import { AccountSettings } from '../components/AccountSettings';
@@ -15,6 +14,7 @@ import { applyLanguage } from '../i18n';
 import { supportedLanguages, type LanguagePreference } from '../i18n/locales';
 import { cardFonts, cardFontStack } from '../config/cardFonts';
 import { useClock } from '../hooks/useClock';
+import { useTheme } from '../hooks/useTheme';
 import {
   accentForTheme,
   accentSoftForTheme,
@@ -22,17 +22,61 @@ import {
   themeAccents,
 } from '../config/themeAccents';
 export function SettingsPage() {
-  const { data, setPreferences, saving } = useWorkspace(),
-    toast = useToast();
+  const { data, setPreferences, saving } = useWorkspace();
   const service = useServiceStatus();
   const { t } = useTranslation();
   const [p, setP] = useState<Preferences>(data.preferences);
+  const [saveState, setSaveState] = useState<'saved' | 'saving' | 'invalid' | 'error'>('saved');
+  const latestRef = useRef(p);
+  const dirtyRef = useRef(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const savePreferencesRef = useRef(setPreferences);
+  savePreferencesRef.current = setPreferences;
+  useTheme(p);
   const previewNow = useClock(p.countdown === 'seconds' ? 1 : 30);
   const previewTheme = resolveTheme(
     p.theme,
     window.matchMedia('(prefers-color-scheme: dark)').matches,
   );
-  const update = (v: Partial<Preferences>) => setP((x) => ({ ...x, ...v }));
+  function validPreferences(next: Preferences) {
+    return validZone(next.timezone) && next.urgentDays <= next.warningDays;
+  }
+  async function persist(next: Preferences) {
+    if (!validPreferences(next)) {
+      setSaveState('invalid');
+      return;
+    }
+    if (latestRef.current === next) dirtyRef.current = false;
+    setSaveState('saving');
+    const saved = await savePreferencesRef.current(next);
+    if (latestRef.current === next) {
+      dirtyRef.current = !saved;
+      setSaveState(saved ? 'saved' : 'error');
+    }
+  }
+  const update = (v: Partial<Preferences>) => {
+    const next = { ...latestRef.current, ...v };
+    latestRef.current = next;
+    dirtyRef.current = true;
+    setP(next);
+    setSaveState(validPreferences(next) ? 'saving' : 'invalid');
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => void persist(next), 450);
+  };
+  useEffect(() => {
+    if (!dirtyRef.current) {
+      latestRef.current = data.preferences;
+      setP(data.preferences);
+    }
+  }, [data.preferences]);
+  useEffect(
+    () => () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+      const next = latestRef.current;
+      if (dirtyRef.current && validPreferences(next)) void savePreferencesRef.current(next);
+    },
+    [],
+  );
   const [sample] = useState(() => ({
     ...newDeadline(),
     title: 'Your next good idea',
@@ -68,17 +112,6 @@ export function SettingsPage() {
       values: { theme: 'eink', countdown: 'days', displayRefresh: 300, showProgress: false },
     },
   ];
-  async function save() {
-    if (!validZone(p.timezone)) {
-      toast('Choose a valid timezone.', true);
-      return;
-    }
-    if (p.urgentDays > p.warningDays) {
-      toast('The urgent threshold must be shorter than the upcoming threshold.', true);
-      return;
-    }
-    if (await setPreferences(p)) toast(t('Settings saved across your devices.'));
-  }
   return (
     <div className="page settings-page">
       <div className="page-heading">
@@ -87,10 +120,23 @@ export function SettingsPage() {
           <h1>{t('Your space. Your pace.')}</h1>
           <p>Keep what helps. Quiet everything else.</p>
         </div>
-        <button className="button primary" disabled={saving} onClick={() => void save()}>
-          <Check size={18} />
-          {saving ? t('Saving…') : t('Save settings')}
-        </button>
+        <div className={'settings-autosave-status ' + saveState} role="status" aria-live="polite">
+          {saving || saveState === 'saving' ? (
+            <>
+              <LoaderCircle className="spin" size={17} />
+              {t('Saving…')}
+            </>
+          ) : saveState === 'invalid' ? (
+            <span>Check timezone and urgency thresholds</span>
+          ) : saveState === 'error' ? (
+            <span>Couldn’t save · try another change</span>
+          ) : (
+            <>
+              <Check size={17} />
+              Saved automatically
+            </>
+          )}
+        </div>
       </div>
       <section className="settings-section" id="language">
         <div>
@@ -135,7 +181,7 @@ export function SettingsPage() {
       <section className="settings-section">
         <div>
           <h2>A good starting point</h2>
-          <p>Try a preset, then make it yours. Changes apply when you save.</p>
+          <p>Try a preset, then make it yours. Changes apply and save automatically.</p>
         </div>
         <div className="settings-content">
           <div className="preset-buttons">
@@ -405,7 +451,7 @@ export function SettingsPage() {
         <div className="settings-content">
           {!service.data?.emailReminders && (
             <div className="email-pending">
-              Email delivery is not enabled in this installation yet. You can save your preferences
+              Email delivery is not enabled in this installation yet. Your preferences are saved
               now; emails will begin only after the owner connects a sending provider.
             </div>
           )}
@@ -472,11 +518,6 @@ export function SettingsPage() {
           ))}
         </div>
       </section>
-      <div className="settings-save">
-        <button className="button primary" disabled={saving} onClick={() => void save()}>
-          {t('Save settings')}
-        </button>
-      </div>
       <DataSettings />
       <AccountSettings />
     </div>

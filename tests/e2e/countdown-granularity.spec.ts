@@ -11,7 +11,7 @@ test('previews, saves, and live-updates second-level countdowns', async ({ page 
   const before = await preview.textContent();
   await expect.poll(() => preview.textContent(), { timeout: 2500 }).not.toBe(before);
 
-  await page.getByRole('button', { name: 'Save settings', exact: true }).first().click();
+  await expect(page.getByRole('status')).toContainText('Saved automatically');
   await page.reload();
   await expect(page.getByTestId('countdown-granularity-select')).toHaveValue('seconds');
   await navigate(page, 'Overview');

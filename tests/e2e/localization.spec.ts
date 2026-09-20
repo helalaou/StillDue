@@ -11,7 +11,7 @@ test('changes and persists the workspace language', async ({ page }) => {
   if (await menu.isVisible()) {
     await page.getByRole('link', { name: 'Ajustes', exact: true }).click();
   }
-  await page.getByRole('button', { name: 'Guardar ajustes', exact: true }).first().click();
+  await expect(page.getByRole('status')).toContainText('Saved automatically');
   await page.reload();
   await expect(page.locator('html')).toHaveAttribute('lang', 'es');
   if ((page.viewportSize()?.width ?? 1024) < 760) {

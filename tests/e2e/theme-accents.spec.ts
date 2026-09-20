@@ -12,7 +12,7 @@ test('previews and applies accent colors in light and dark themes', async ({ pag
     'rgb(183, 201, 242)',
   );
 
-  await page.getByRole('button', { name: 'Save settings', exact: true }).first().click();
+  await expect(page.getByRole('status')).toContainText('Saved automatically');
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   await expect
     .poll(() =>

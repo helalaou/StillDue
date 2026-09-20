@@ -10,7 +10,8 @@ test('previews and persists the deadline card typeface', async ({ page }) => {
     'font-family',
     /Atkinson Hyperlegible/,
   );
-  await page.getByRole('button', { name: 'Save settings', exact: true }).first().click();
+  await expect(page.getByRole('status')).toContainText('Saved automatically');
+  await expect(page.getByRole('button', { name: 'Save settings', exact: true })).toHaveCount(0);
 
   await page.reload();
   await expect(page.getByTestId('card-font-select')).toHaveValue('atkinson');

@@ -73,10 +73,35 @@
 .settings-preview .card-next {
   font-size: 0.8125rem;
 }
-.settings-save {
+.settings-autosave-status {
   display: flex;
-  justify-content: flex-end;
-  margin: 0 0 30px;
+  align-items: center;
+  gap: 7px;
+  min-height: 36px;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+.settings-autosave-status.saved {
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--line));
+  color: var(--accent);
+}
+.settings-autosave-status.invalid,
+.settings-autosave-status.error {
+  border-color: color-mix(in srgb, var(--danger) 45%, var(--line));
+  color: var(--danger);
+}
+.settings-autosave-status .spin {
+  animation: settings-spin 900ms linear infinite;
+}
+@keyframes settings-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 .urgency-legend {
   display: flex;
@@ -150,8 +175,8 @@
     flex: 1;
     min-width: 130px;
   }
-  .settings-page .page-heading .button {
-    width: 100%;
+  .settings-autosave-status {
+    width: fit-content;
   }
 }
 
