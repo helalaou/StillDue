@@ -291,6 +291,20 @@ export function SettingsPage() {
               />
               Hide deadlines after they pass
             </label>
+            <label className="check-field">
+              <input
+                type="checkbox"
+                data-testid="urgency-colors-toggle"
+                checked={p.urgencyColors}
+                onChange={(e) => update({ urgencyColors: e.target.checked })}
+              />
+              Use urgency colors
+            </label>
+          </div>
+          <div className="urgency-legend" aria-label="Urgency color guide">
+            <span className="later">Comfortably ahead</span>
+            <span className="upcoming">Approaching</span>
+            <span className="urgent">Urgent</span>
           </div>
           <div className="form-grid">
             <label className="field">

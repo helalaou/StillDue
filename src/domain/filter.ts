@@ -6,7 +6,6 @@ export interface Filters {
   boardId: string;
   priority: string;
   focus?: boolean;
-  sort?: string;
 }
 export function filterDeadlines(
   items: Deadline[],
@@ -29,14 +28,10 @@ export function filterDeadlines(
             .includes(q)),
     )
     .sort((a, b) => {
+      const due =
+        (a.dueAt ? Date.parse(a.dueAt) : Infinity) - (b.dueAt ? Date.parse(b.dueAt) : Infinity);
+      if (due) return due;
       if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
-      if (f.sort === 'title') return a.title.localeCompare(b.title);
-      if (f.sort === 'priority') {
-        const r = { high: 0, normal: 1, low: 2 };
-        if (r[a.priority] !== r[b.priority]) return r[a.priority] - r[b.priority];
-      }
-      return (
-        (a.dueAt ? Date.parse(a.dueAt) : Infinity) - (b.dueAt ? Date.parse(b.dueAt) : Infinity)
-      );
+      return a.title.localeCompare(b.title);
     });
 }

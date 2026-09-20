@@ -73,6 +73,7 @@ export interface Preferences {
   followDevice: boolean;
   hour24: boolean;
   hideExpired: boolean;
+  urgencyColors: boolean;
   fontScale: number;
   density: 'comfortable' | 'compact';
   columns: number;

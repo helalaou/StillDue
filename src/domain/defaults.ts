@@ -30,6 +30,7 @@ export function defaultPreferences(): Preferences {
     followDevice: true,
     hour24: false,
     hideExpired: true,
+    urgencyColors: true,
     fontScale: 1,
     density: 'comfortable',
     columns: 3,

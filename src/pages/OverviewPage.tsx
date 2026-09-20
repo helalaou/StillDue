@@ -40,8 +40,7 @@ export function OverviewPage({
   const [params, setParams] = useSearchParams();
   const search = params.get('q') || '',
     boardId = params.get('board') || '',
-    priority = params.get('priority') || '',
-    sort = params.get('sort') || 'due';
+    priority = params.get('priority') || '';
   const [view, setView] = useState<'grid' | 'list'>('grid'),
     [editor, setEditor] = useState<Deadline | null>(null),
     [detail, setDetail] = useState<Deadline | null>(null),
@@ -54,7 +53,7 @@ export function OverviewPage({
   const filtered = filterDeadlines(
     data.deadlines,
     prefs,
-    { status, search, boardId, priority, sort, focus },
+    { status, search, boardId, priority, focus },
     now,
   );
   const items = focus ? filtered.slice(0, prefs.focusLimit) : filtered;
@@ -219,15 +218,7 @@ export function OverviewPage({
           <option value="normal">{t('Normal')}</option>
           <option value="low">{t('Low')}</option>
         </select>
-        <select
-          aria-label={t('Sort deadlines')}
-          value={sort}
-          onChange={(e) => filter('sort', e.target.value)}
-        >
-          <option value="due">{t('Soonest first')}</option>
-          <option value="priority">Priority first</option>
-          <option value="title">By title</option>
-        </select>
+        <span className="fixed-sort-note">{t('Soonest first')}</span>
         <button
           className="icon-button"
           title="Save this view"

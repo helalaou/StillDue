@@ -48,6 +48,7 @@ export function DeadlineCard({
         (board?.color || 'mint') +
         ' ' +
         urgency +
+        (prefs.urgencyColors ? ' urgency-colors' : '') +
         (display ? ' display-card' : '') +
         (selected ? ' is-selected' : '')
       }
