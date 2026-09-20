@@ -21,9 +21,26 @@ test('create, edit, complete and restore a deadline', async ({ page }) => {
   await navigate(page, 'Overview');
   await page.getByRole('button', { name: 'Open Browser test deadline' }).click();
   await page.getByRole('button', { name: 'Mark done', exact: true }).last().click();
+  await expect(
+    page.locator('.toast').filter({ hasText: 'Marked complete' }).getByRole('button', {
+      name: 'Undo',
+      exact: true,
+    }),
+  ).toBeVisible();
   await navigate(page, 'Completed');
   await expect(
     page.getByRole('button', { name: 'Browser test deadline', exact: true }),
+  ).toBeVisible();
+});
+test('undoes a completion from the six-second action notice', async ({ page }) => {
+  await enterDemo(page);
+  const card = page.getByRole('article').filter({ hasText: 'Fellowship application' });
+  await card.getByRole('button', { name: 'Mark done', exact: true }).click();
+
+  await expect(card).toHaveCount(0);
+  await page.getByRole('button', { name: 'Undo', exact: true }).click();
+  await expect(
+    page.getByRole('article').filter({ hasText: 'Fellowship application' }),
   ).toBeVisible();
 });
 test('unfinished new drafts survive closing the editor', async ({ page }) => {

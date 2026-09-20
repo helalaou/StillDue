@@ -85,12 +85,39 @@ export function OverviewPage({
           : 'Everything coming up. A little more headspace.';
   async function bulk(action: 'complete' | 'trash') {
     let count = 0;
+    const completed: Deadline[] = [];
     for (const d of data.deadlines.filter((d) => selection.includes(d.id))) {
-      if (await save('deadlines', action === 'complete' ? complete(d) : trash(d))) count++;
+      if (await save('deadlines', action === 'complete' ? complete(d) : trash(d))) {
+        count++;
+        if (action === 'complete') completed.push(d);
+      }
     }
     setSelection([]);
     setSelecting(false);
-    toast(`${count} deadlines ${action === 'complete' ? 'completed' : 'moved to Trash'}.`);
+    if (action === 'complete') {
+      if (completed.length)
+        toast(`${count} deadline${count === 1 ? '' : 's'} completed.`, false, {
+          label: 'Undo',
+          durationMs: 6000,
+          run: () => {
+            void (async () => {
+              for (const original of completed)
+                await save('deadlines', { ...original, version: original.version + 1 });
+            })();
+          },
+        });
+    } else {
+      toast(`${count} deadlines moved to Trash.`);
+    }
+  }
+  async function markComplete(d: Deadline) {
+    if (await save('deadlines', complete(d))) {
+      toast('Marked complete.', false, {
+        label: 'Undo',
+        durationMs: 6000,
+        run: () => void save('deadlines', { ...d, version: d.version + 1 }),
+      });
+    }
   }
   return (
     <div className="page">
@@ -301,9 +328,7 @@ export function OverviewPage({
                 prefs={prefs}
                 now={now}
                 onOpen={() => setDetail(d)}
-                onComplete={async () => {
-                  if (await save('deadlines', complete(d))) toast('Marked complete.');
-                }}
+                onComplete={() => void markComplete(d)}
                 selectable={selecting}
                 selected={selection.includes(d.id)}
                 onSelect={() =>

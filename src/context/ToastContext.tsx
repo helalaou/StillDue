@@ -4,7 +4,7 @@ interface Notice {
   id: number;
   message: string;
   error: boolean;
-  action?: { label: string; run: () => void };
+  action?: { label: string; run: () => void; durationMs?: number };
 }
 const Context = createContext<
   (message: string, error?: boolean, action?: Notice['action']) => void
@@ -17,7 +17,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   function notify(message: string, error = false, action?: Notice['action']) {
     const id = Date.now() + Math.random();
     set((n) => [...n.slice(-2), { id, message, error, action }]);
-    setTimeout(() => dismiss(id), error ? 14000 : 9000);
+    setTimeout(() => dismiss(id), action?.durationMs ?? (error ? 14000 : 9000));
   }
   return (
     <Context.Provider value={notify}>

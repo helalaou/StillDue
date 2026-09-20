@@ -42,6 +42,16 @@ export function DeadlineDetail({
       onClose();
     }
   }
+  async function markComplete() {
+    if (await save('deadlines', complete(d))) {
+      toast('Marked complete. A little room to breathe.', false, {
+        label: 'Undo',
+        durationMs: 6000,
+        run: () => void save('deadlines', { ...d, version: d.version + 1 }),
+      });
+      onClose();
+    }
+  }
   return (
     <Modal title="Deadline details" onClose={onClose} wide>
       <div className="detail-heading">
@@ -154,12 +164,7 @@ export function DeadlineDetail({
               Edit
             </button>
             {d.status !== 'completed' && (
-              <button
-                className="button secondary"
-                onClick={() =>
-                  void apply(complete(d), 'Marked complete. A little room to breathe.')
-                }
-              >
+              <button className="button secondary" onClick={() => void markComplete()}>
                 <Check size={17} />
                 Mark done
               </button>
