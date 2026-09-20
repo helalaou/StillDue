@@ -132,7 +132,10 @@ export function AuthPage() {
             <br />
             <em>headspace.</em>
           </h1>
-          <p>A calm home for your deadlines, your research, and whatever comes next.</p>
+          <p>
+            A calm home for your deadlines and research. Keep it in sight on a tablet or e-ink
+            screen, and update it from anywhere.
+          </p>
           <div className="auth-example">
             <span>YOUR NEXT SMALL STEP</span>
             <p>Make room for the work that matters.</p>
