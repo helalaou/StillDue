@@ -185,7 +185,7 @@ export function AuthPage() {
                 <GoogleMark />
                 <span className="google-button-copy">
                   <strong>{t('Continue with Google')}</strong>
-                  <small>{t('Recommended · quick and secure')}</small>
+                  <small>{t('Recommended')}</small>
                 </span>
                 <ArrowRight className="google-button-arrow" size={20} />
               </button>
