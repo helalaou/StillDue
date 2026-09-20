@@ -1,19 +1,22 @@
 import { useEffect } from 'react';
 import type { Preferences } from '../domain/types';
 import { cardFontStack } from '../config/cardFonts';
+import { accentForTheme, accentSoftForTheme, resolveTheme } from '../config/themeAccents';
 export function useTheme(p: Preferences) {
   useEffect(() => {
     const media = window.matchMedia('(prefers-color-scheme: dark)');
     function apply() {
-      document.documentElement.dataset.theme =
-        p.theme === 'system' ? (media.matches ? 'dark' : 'light') : p.theme;
+      const theme = resolveTheme(p.theme, media.matches);
+      document.documentElement.dataset.theme = theme;
       document.documentElement.style.setProperty('--font-scale', String(p.fontScale));
       document.documentElement.style.setProperty('--card-font-family', cardFontStack(p.cardFont));
       document.documentElement.dataset.density = p.density;
       document.documentElement.style.setProperty('--card-columns', String(p.columns));
-      if (document.documentElement.dataset.theme === 'light')
-        document.documentElement.style.setProperty('--accent', p.accent);
-      else document.documentElement.style.removeProperty('--accent');
+      document.documentElement.style.setProperty('--accent', accentForTheme(p.accent, theme));
+      document.documentElement.style.setProperty(
+        '--accent-soft',
+        accentSoftForTheme(p.accent, theme),
+      );
     }
     apply();
     media.addEventListener('change', apply);

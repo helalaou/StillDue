@@ -19,6 +19,22 @@
 .settings-content {
   min-width: 0;
 }
+.accent-help {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 7px;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 450;
+}
+.accent-swatch {
+  width: 13px;
+  height: 13px;
+  border: 1px solid color-mix(in srgb, currentColor 35%, transparent);
+  border-radius: 50%;
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
 .settings-content > .check-field:first-child {
   margin-top: 0;
 }

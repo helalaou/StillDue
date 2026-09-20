@@ -102,7 +102,7 @@ textarea:focus-visible {
   outline-offset: 4px;
 }
 ::selection {
-  background: #cce7cf;
+  background: var(--accent-soft);
 }
 button {
   color: inherit;

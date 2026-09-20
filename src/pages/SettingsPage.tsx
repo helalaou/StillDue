@@ -14,12 +14,22 @@ import type { Preferences } from '../domain/types';
 import { applyLanguage } from '../i18n';
 import { supportedLanguages, type LanguagePreference } from '../i18n/locales';
 import { cardFonts, cardFontStack } from '../config/cardFonts';
+import {
+  accentForTheme,
+  accentSoftForTheme,
+  resolveTheme,
+  themeAccents,
+} from '../config/themeAccents';
 export function SettingsPage() {
   const { data, setPreferences, saving } = useWorkspace(),
     toast = useToast();
   const service = useServiceStatus();
   const { t } = useTranslation();
   const [p, setP] = useState<Preferences>(data.preferences);
+  const previewTheme = resolveTheme(
+    p.theme,
+    window.matchMedia('(prefers-color-scheme: dark)').matches,
+  );
   const update = (v: Partial<Preferences>) => setP((x) => ({ ...x, ...v }));
   const sample = {
     ...newDeadline(),
@@ -146,6 +156,7 @@ export function SettingsPage() {
             <label className="field">
               Theme
               <select
+                data-testid="theme-select"
                 value={p.theme}
                 onChange={(e) => update({ theme: e.target.value as Preferences['theme'] })}
               >
@@ -155,14 +166,29 @@ export function SettingsPage() {
                 <option value="eink">Monochrome / E-ink</option>
               </select>
             </label>
-            <label className="field">
+            <label className="field accent-field">
               Accent
-              <select value={p.accent} onChange={(e) => update({ accent: e.target.value })}>
-                <option value="#245447">Forest</option>
-                <option value="#3d5480">Blue</option>
-                <option value="#6a4b78">Plum</option>
-                <option value="#785435">Earth</option>
+              <select
+                data-testid="accent-select"
+                value={p.accent}
+                onChange={(e) => update({ accent: e.target.value })}
+              >
+                {themeAccents.map((accent) => (
+                  <option value={accent.value} key={accent.value}>
+                    {accent.name}
+                  </option>
+                ))}
               </select>
+              <span className="accent-help">
+                <span
+                  className="accent-swatch"
+                  data-testid="accent-swatch"
+                  style={{ background: accentForTheme(p.accent, previewTheme) }}
+                />
+                {previewTheme === 'eink'
+                  ? 'E-ink stays monochrome'
+                  : `${themeAccents.find((accent) => accent.value === p.accent)?.name ?? 'Forest'} preview`}
+              </span>
             </label>
             <label className="field">
               Text size · {Math.round(p.fontScale * 100)}%
@@ -243,11 +269,13 @@ export function SettingsPage() {
           </div>
           <div
             className="settings-preview"
-            data-theme={p.theme}
+            data-theme={previewTheme}
             style={
               {
                 fontSize: p.fontScale + 'rem',
                 '--card-font-family': cardFontStack(p.cardFont),
+                '--accent': accentForTheme(p.accent, previewTheme),
+                '--accent-soft': accentSoftForTheme(p.accent, previewTheme),
               } as CSSProperties
             }
           >
