@@ -304,6 +304,11 @@ export function AuthPage() {
               <p className="fine-print">
                 The demo uses fictional data stored only in this browser.
               </p>
+              <p className="auth-legal-links">
+                <a href="/privacy.html">Privacy</a>
+                <span aria-hidden="true">·</span>
+                <a href="/terms.html">Terms</a>
+              </p>
             </>
           )}
         </div>
