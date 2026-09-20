@@ -5,6 +5,22 @@ StillDue is a calm, customizable home for research deadlines and everyday commit
 
 The app keeps that glanceable view while making it possible to edit from a phone, organize a project on a laptop, and leave a readable board on a tablet or browser-capable e-ink display. It is designed to reduce the effort of remembering, finding, and starting. Predictable layouts, visible next steps, reversible actions, and optional reminders are deliberate choices. StillDue makes no medical claims.
 
+## Why keep deadlines in sight?
+
+A deadline is a prospective-memory problem: you form an intention now, then need to recover it while your attention is somewhere else. Keeping every intention in your head consumes attention that could go into the work itself. Research calls the use of lists, calendars, reminders, and other external supports **cognitive offloading**. A broad review describes how physical actions and external tools can reduce internal cognitive demand, while a series of four experiments with 1,196 participants found that setting external reminders improved follow-through and became more common as memory load and distraction increased ([Risko & Gilbert, 2016](https://doi.org/10.1016/j.tics.2016.07.002); [Gilbert, 2015](https://pmc.ncbi.nlm.nih.gov/articles/PMC4448673/)).
+
+StillDue treats the room around you as part of that support. A quiet board in an office, lab, studio, or home workspace can turn an abstract future date into a cue you encounter throughout the day. The goal is not to create urgency every time you look up. It is to make time legible: what is approaching, what is uncertain, and what small action would move the work forward. That is why the display emphasizes a few large countdowns and next steps instead of a dense wall of notifications.
+
+This can be especially useful for some people with ADHD. A systematic review and a later meta-analysis found meaningful differences in time perception and time management across ADHD research, while also noting variation between people and limits in the available adult evidence ([Mette, 2023](https://pmc.ncbi.nlm.nih.gov/articles/PMC9962130/); [Metcalfe, McFeaters & Voyer, 2024](https://pubmed.ncbi.nlm.nih.gov/38145491/)). StillDue responds with visible time, adjustable urgency thresholds, a deliberately small Focus view, concrete next actions, and forgiving recovery from mistakes. These are design choices, not treatment, diagnosis, or a promise that one workflow fits every mind.
+
+Visibility is only helpful when it stays calm. Completed and expired work moves out of the active view. Uncertain dates remain visibly uncertain. Trash is reversible. Focus limits can keep the “important” list from becoming another overwhelming list. The product aims to help someone reorient after an interruption without punishing them for having been interrupted.
+
+## A desk display without special hardware
+
+StillDue can turn an old or inexpensive tablet into an always-available deadline board: open Display mode in its browser, add the site to the home screen, choose larger type, and leave it on a stand. Edit from a phone or computer and the signed-in display updates from the same private workspace. The interface also adapts to desktop monitors and small mobile screens.
+
+For browser-capable e-ink tablets and monitors, the monochrome preset removes animation, increases structural contrast, and refreshes less often. E-ink is appealing for a persistent office display because it is quiet, readable, and power-conscious, but StillDue does not require it. A second-hand LCD tablet works well, and no dedicated device is necessary. Browser support varies, so fullscreen, wake lock, installation, and refresh behavior should be tested on the actual device. See the [desk-display guide](docs/display-guide.md).
+
 ## What you can do
 
 - Sign in with Google or use a private email-and-password account. Email verification and password recovery are prepared for a production email provider.
@@ -102,7 +118,9 @@ Browser wake lock, fullscreen, installation, and e-ink behavior depend on the de
 
 ## Contributing and license
 
-The repository is private initially, with an open-source-ready structure. The code and original StillDue brand assets are licensed under [MIT](LICENSE). Third-party notices are in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). See [CONTRIBUTING.md](CONTRIBUTING.md) and [SECURITY.md](SECURITY.md).
+Pull requests are welcome. If you have an idea for a calmer workflow, a new research source, better accessibility, device support, documentation, or a bug fix, open an issue or propose a focused pull request. The repository is private during its initial setup; invited collaborators can contribute now, and anyone will be able to fork and propose changes once it is made public.
+
+The code and original StillDue brand assets are licensed under [MIT](LICENSE). Third-party notices are in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). The [contribution guide](CONTRIBUTING.md) explains setup, quality checks, migrations, privacy expectations, and what to include in a pull request. Please use fictional test data and never publish someone’s research plans or account information. Security concerns should follow [SECURITY.md](SECURITY.md) instead of a public issue.
 
 Shared lab permissions, native mobile apps, two-way calendar synchronization, and device-specific e-ink feeds are tracked in the [roadmap](docs/roadmap.md).
 
