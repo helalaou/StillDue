@@ -1,10 +1,33 @@
 import { useServiceStatus } from '../hooks/useServiceStatus';
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { ArrowRight, Mail, Eye, EyeOff } from 'lucide-react';
 import { Brand } from '../components/Brand';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 import { errorMessage } from '../lib/errors';
+
+function GoogleMark() {
+  return (
+    <svg className="google-mark" viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        fill="#4285f4"
+        d="M21.6 12.2c0-.7-.1-1.5-.2-2.2H12v4.3h5.4a4.6 4.6 0 0 1-2 3v2.8h3.3c1.9-1.8 2.9-4.4 2.9-7.9"
+      />
+      <path
+        fill="#34a853"
+        d="M12 22c2.7 0 5-.9 6.7-2.4l-3.3-2.8c-.9.6-2.1 1-3.4 1a5.9 5.9 0 0 1-5.6-4.1H3v2.8A10 10 0 0 0 12 22"
+      />
+      <path
+        fill="#fbbc05"
+        d="M6.4 13.7A6 6 0 0 1 6.1 12c0-.6.1-1.2.3-1.7V7.5H3A10 10 0 0 0 2 12c0 1.6.4 3.1 1 4.5z"
+      />
+      <path
+        fill="#ea4335"
+        d="M12 6.2c1.5 0 2.8.5 3.9 1.5l2.9-2.9A9.7 9.7 0 0 0 12 2a10 10 0 0 0-9 5.5l3.4 2.8A5.9 5.9 0 0 1 12 6.2"
+      />
+    </svg>
+  );
+}
 export function AuthPage() {
   const auth = useAuth();
   const service = useServiceStatus();
@@ -16,6 +39,41 @@ export function AuthPage() {
     [busy, setBusy] = useState(false),
     [message, setMessage] = useState(''),
     [error, setError] = useState('');
+  useEffect(() => {
+    const query = new URLSearchParams(location.search);
+    const hash = new URLSearchParams(location.hash.replace(/^#/, ''));
+    const oauthError = query.get('error_description') || hash.get('error_description');
+    if (oauthError) {
+      setError(oauthError);
+      history.replaceState({}, '', '/auth');
+    }
+  }, []);
+
+  async function signInWithGoogle() {
+    setError('');
+    setMessage('');
+    if (!supabase) {
+      setError('Cloud accounts are not configured in this installation. You can explore the demo.');
+      return;
+    }
+    if (!service.data?.googleLogin) {
+      setError(
+        'Google sign-in is being connected. Please use an existing account or the demo for now.',
+      );
+      return;
+    }
+    setBusy(true);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: `${location.origin}/auth` },
+      });
+      if (error) throw error;
+    } catch (e) {
+      setError(errorMessage(e));
+      setBusy(false);
+    }
+  }
   async function submit(e: FormEvent) {
     e.preventDefault();
     setError('');
@@ -110,6 +168,25 @@ export function AuthPage() {
               Email delivery is being set up. New account verification and password resets will be
               available once it is connected.
             </p>
+          )}
+          {!auth.recovery && mode !== 'reset' && (
+            <>
+              <button
+                type="button"
+                className="button google-button full"
+                disabled={busy || service.isLoading || !service.data?.googleLogin}
+                onClick={signInWithGoogle}
+              >
+                <GoogleMark />
+                Continue with Google
+              </button>
+              {!service.isLoading && !service.data?.googleLogin && (
+                <p className="provider-pending">Google sign-in is being connected.</p>
+              )}
+              <div className="auth-divider compact">
+                <span>or continue with email</span>
+              </div>
+            </>
           )}
           <form onSubmit={submit}>
             {mode === 'signup' && !auth.recovery && (

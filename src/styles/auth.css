@@ -108,6 +108,29 @@
 .auth-links .text-button {
   font-size: 0.8125rem;
 }
+.google-button {
+  justify-content: center;
+  background: var(--panel);
+  border: 1px solid var(--line-strong);
+  color: var(--text);
+  min-height: 48px;
+  margin-top: 28px;
+}
+.google-button:hover:not(:disabled) {
+  background: var(--surface-soft);
+  border-color: var(--muted);
+}
+.google-mark {
+  width: 19px;
+  height: 19px;
+  flex: 0 0 auto;
+}
+.provider-pending {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.75rem;
+  margin: 9px 0 0;
+}
 .auth-divider {
   display: flex;
   align-items: center;
@@ -115,6 +138,9 @@
   color: var(--muted);
   font-size: 0.75rem;
   gap: 12px;
+}
+.auth-divider.compact {
+  margin: 22px 0;
 }
 .auth-divider:before,
 .auth-divider:after {

@@ -8,7 +8,7 @@ export const appConfig = {
   reminders: { defaultMinutes: [1440, 10080], maxPerDeadline: 5 },
   trash: { retentionDays: null as number | null },
   limits: { title: 160, notes: 10000, importRows: 1000, maxFileBytes: 2_000_000 },
-  features: { googleLogin: false, teams: false, conferenceDiscovery: true },
+  features: { googleLogin: true, teams: false, conferenceDiscovery: true },
   sources: {
     ccf: {
       name: 'CCF Deadlines',
