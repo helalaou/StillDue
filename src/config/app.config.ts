@@ -9,6 +9,7 @@ export const appConfig = {
     einkRefreshSeconds: 300,
     maxColumns: 4,
     cardScale: { min: 0.8, max: 1.3, step: 0.1, default: 1 },
+    clockScale: { min: 0.8, max: 1.5, step: 0.1, default: 1 },
   },
   reminders: { defaultMinutes: [1440, 10080], maxPerDeadline: 5 },
   trash: { retentionDays: null as number | null },

@@ -12,9 +12,13 @@ import { EmptyState } from '../components/EmptyState';
 import { appConfig } from '../config/app.config';
 
 const DISPLAY_CARD_SCALE_KEY = 'stilldue:display:card-scale';
+const DISPLAY_CLOCK_SCALE_KEY = 'stilldue:display:clock-scale';
 const cardScaleConfig = appConfig.display.cardScale;
+const clockScaleConfig = appConfig.display.clockScale;
 const clampCardScale = (value: number) =>
   Math.min(cardScaleConfig.max, Math.max(cardScaleConfig.min, value));
+const clampClockScale = (value: number) =>
+  Math.min(clockScaleConfig.max, Math.max(clockScaleConfig.min, value));
 
 export function DisplayPage() {
   const { i18n } = useTranslation();
@@ -28,6 +32,12 @@ export function DisplayPage() {
       if (saved === null) return cardScaleConfig.default;
       const stored = Number(saved);
       return Number.isFinite(stored) ? clampCardScale(stored) : cardScaleConfig.default;
+    }),
+    [clockScale, setClockScale] = useState(() => {
+      const saved = localStorage.getItem(DISPLAY_CLOCK_SCALE_KEY);
+      if (saved === null) return clockScaleConfig.default;
+      const stored = Number(saved);
+      return Number.isFinite(stored) ? clampClockScale(stored) : clockScaleConfig.default;
     }),
     [awake, setAwake] = useState(false),
     [fullscreen, setFullscreen] = useState(false),
@@ -61,6 +71,9 @@ export function DisplayPage() {
     localStorage.setItem(DISPLAY_CARD_SCALE_KEY, String(cardScale));
   }, [cardScale]);
   useEffect(() => {
+    localStorage.setItem(DISPLAY_CLOCK_SCALE_KEY, String(clockScale));
+  }, [clockScale]);
+  useEffect(() => {
     const id = setInterval(refresh, (eink ? 300 : prefs.displayRefresh) * 1000);
     return () => clearInterval(id);
   }, [eink, prefs.displayRefresh]);
@@ -83,11 +96,19 @@ export function DisplayPage() {
       clampCardScale(Number((current + direction * cardScaleConfig.step).toFixed(1))),
     );
   }
+  function resizeClock(direction: -1 | 1) {
+    setClockScale((current) =>
+      clampClockScale(Number((current + direction * clockScaleConfig.step).toFixed(1))),
+    );
+  }
   return (
     <div className={'display-page ' + (eink ? 'eink-display' : '')}>
       <header className="display-header">
         <Brand />
-        <div className="display-clock">
+        <div
+          className="display-clock"
+          style={{ '--display-clock-scale': clockScale } as React.CSSProperties}
+        >
           {prefs.showClock && (
             <>
               <strong>
@@ -160,46 +181,83 @@ export function DisplayPage() {
             <input type="checkbox" checked={eink} onChange={(e) => setEink(e.target.checked)} />
             E-ink preset on this device
           </label>
-          <div className="display-size-setting">
-            <div className="display-size-heading">
-              <span>Card size</span>
-              <output htmlFor="display-card-size">{Math.round(cardScale * 100)}%</output>
-            </div>
-            <div className="display-size-control">
-              <button
-                className="icon-button"
-                aria-label="Make cards smaller"
-                disabled={cardScale <= cardScaleConfig.min}
-                onClick={() => resizeCards(-1)}
-              >
-                <Minus size={18} />
-              </button>
-              <input
-                id="display-card-size"
-                aria-label="Card size"
-                type="range"
-                min={cardScaleConfig.min}
-                max={cardScaleConfig.max}
-                step={cardScaleConfig.step}
-                value={cardScale}
-                onChange={(event) => setCardScale(clampCardScale(Number(event.target.value)))}
-              />
-              <button
-                className="icon-button"
-                aria-label="Make cards larger"
-                disabled={cardScale >= cardScaleConfig.max}
-                onClick={() => resizeCards(1)}
-              >
-                <Plus size={18} />
-              </button>
-            </div>
-            <small>Saved on this device</small>
-          </div>
           <label className="check-field">
             <input type="checkbox" checked={awake} onChange={(e) => setAwake(e.target.checked)} />
             Keep screen awake
           </label>
           {wakeStatus && <span className="fine-print">{wakeStatus}</span>}
+          <div className="display-size-settings">
+            <div className="display-size-setting">
+              <div className="display-size-heading">
+                <span>Clock size</span>
+                <output htmlFor="display-clock-size">{Math.round(clockScale * 100)}%</output>
+              </div>
+              <div className="display-size-control">
+                <button
+                  className="icon-button"
+                  aria-label="Make clock smaller"
+                  disabled={clockScale <= clockScaleConfig.min}
+                  onClick={() => resizeClock(-1)}
+                >
+                  <Minus size={18} />
+                </button>
+                <input
+                  id="display-clock-size"
+                  aria-label="Clock size"
+                  type="range"
+                  min={clockScaleConfig.min}
+                  max={clockScaleConfig.max}
+                  step={clockScaleConfig.step}
+                  value={clockScale}
+                  onChange={(event) => setClockScale(clampClockScale(Number(event.target.value)))}
+                />
+                <button
+                  className="icon-button"
+                  aria-label="Make clock larger"
+                  disabled={clockScale >= clockScaleConfig.max}
+                  onClick={() => resizeClock(1)}
+                >
+                  <Plus size={18} />
+                </button>
+              </div>
+              <small>Time and date · saved on this device</small>
+            </div>
+            <div className="display-size-setting card-size-setting">
+              <div className="display-size-heading">
+                <span>Card size</span>
+                <output htmlFor="display-card-size">{Math.round(cardScale * 100)}%</output>
+              </div>
+              <div className="display-size-control">
+                <button
+                  className="icon-button"
+                  aria-label="Make cards smaller"
+                  disabled={cardScale <= cardScaleConfig.min}
+                  onClick={() => resizeCards(-1)}
+                >
+                  <Minus size={18} />
+                </button>
+                <input
+                  id="display-card-size"
+                  aria-label="Card size"
+                  type="range"
+                  min={cardScaleConfig.min}
+                  max={cardScaleConfig.max}
+                  step={cardScaleConfig.step}
+                  value={cardScale}
+                  onChange={(event) => setCardScale(clampCardScale(Number(event.target.value)))}
+                />
+                <button
+                  className="icon-button"
+                  aria-label="Make cards larger"
+                  disabled={cardScale >= cardScaleConfig.max}
+                  onClick={() => resizeCards(1)}
+                >
+                  <Plus size={18} />
+                </button>
+              </div>
+              <small>Saved on this device</small>
+            </div>
+          </div>
         </div>
       )}
       <div className="display-title">

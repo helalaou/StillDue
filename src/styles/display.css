@@ -15,21 +15,22 @@
   font-size: 1.875rem;
 }
 .display-clock {
+  --display-clock-scale: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 5px;
+  gap: calc(5px * var(--display-clock-scale));
   margin-left: auto;
   margin-right: auto;
 }
 .display-clock strong {
-  font-size: 1.75rem;
+  font-size: calc(1.75rem * var(--display-clock-scale));
   font-weight: 450;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.7px;
 }
 .display-clock span {
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem * var(--display-clock-scale));
   color: var(--muted);
 }
 .display-controls {
@@ -123,6 +124,13 @@
 .display-settings .fine-print {
   width: 100%;
   margin: 0;
+}
+.display-size-settings {
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-end;
+  gap: 14px;
+  margin-left: auto;
 }
 .display-size-setting {
   width: min(310px, 100%);
@@ -231,10 +239,10 @@
     margin: 0;
   }
   .display-clock strong {
-    font-size: 1.5rem;
+    font-size: calc(1.5rem * var(--display-clock-scale));
   }
   .display-clock span {
-    font-size: 0.75rem;
+    font-size: calc(0.75rem * var(--display-clock-scale));
   }
   .display-controls {
     margin-left: auto;
@@ -253,6 +261,13 @@
   }
   .display-footer > span:last-child {
     display: none;
+  }
+  .display-size-settings {
+    width: 100%;
+    flex-direction: column;
+  }
+  .display-size-setting {
+    width: 100%;
   }
 }
 @media print {
