@@ -1,5 +1,6 @@
 import { useServiceStatus } from '../hooks/useServiceStatus';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Check, Monitor, Focus, Leaf, FlaskConical } from 'lucide-react';
 import { useWorkspace } from '../context/WorkspaceContext';
 import { useToast } from '../context/ToastContext';
@@ -10,10 +11,13 @@ import { DeadlineCard } from '../components/DeadlineCard';
 import { newDeadline } from '../domain/defaults';
 import { validZone } from '../domain/time';
 import type { Preferences } from '../domain/types';
+import { applyLanguage } from '../i18n';
+import { supportedLanguages, type LanguagePreference } from '../i18n/locales';
 export function SettingsPage() {
   const { data, setPreferences, saving } = useWorkspace(),
     toast = useToast();
   const service = useServiceStatus();
+  const { t } = useTranslation();
   const [p, setP] = useState<Preferences>(data.preferences);
   const update = (v: Partial<Preferences>) => setP((x) => ({ ...x, ...v }));
   const sample = {
@@ -60,21 +64,61 @@ export function SettingsPage() {
       toast('The urgent threshold must be shorter than the upcoming threshold.', true);
       return;
     }
-    if (await setPreferences(p)) toast('Settings saved across your devices.');
+    if (await setPreferences(p)) toast(t('Settings saved across your devices.'));
   }
   return (
     <div className="page settings-page">
       <div className="page-heading">
         <div>
           <div className="eyebrow">MAKE YOURSELF AT HOME</div>
-          <h1>Your space. Your pace.</h1>
+          <h1>{t('Your space. Your pace.')}</h1>
           <p>Keep what helps. Quiet everything else.</p>
         </div>
         <button className="button primary" disabled={saving} onClick={() => void save()}>
           <Check size={18} />
-          {saving ? 'Saving…' : 'Save settings'}
+          {saving ? t('Saving…') : t('Save settings')}
         </button>
       </div>
+      <section className="settings-section" id="language">
+        <div>
+          <h2>{t('Language & region')}</h2>
+          <p>
+            {t(
+              'Use your device language automatically or choose the language saved with your account.',
+            )}
+          </p>
+        </div>
+        <div className="settings-content">
+          <label className="field">
+            {t('Language')}
+            <select
+              data-testid="language-select"
+              value={p.language}
+              onChange={(event) => {
+                const language = event.target.value as LanguagePreference;
+                update({ language });
+                void applyLanguage(language);
+              }}
+            >
+              {supportedLanguages.map((language) => (
+                <option
+                  value={language.code}
+                  key={language.code}
+                  lang={language.code === 'auto' ? undefined : language.code}
+                  dir={language.dir}
+                >
+                  {language.code === 'auto'
+                    ? t('Use device language')
+                    : `${language.nativeName} · ${language.name}`}
+                </option>
+              ))}
+            </select>
+          </label>
+          <p className="field-help">
+            {t('Dates, times, navigation, and common actions use this language.')}
+          </p>
+        </div>
+      </section>
       <section className="settings-section">
         <div>
           <h2>A good starting point</h2>
@@ -362,7 +406,7 @@ export function SettingsPage() {
       </section>
       <div className="settings-save">
         <button className="button primary" disabled={saving} onClick={() => void save()}>
-          Save settings
+          {t('Save settings')}
         </button>
       </div>
       <DataSettings />

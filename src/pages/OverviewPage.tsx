@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import {
   Plus,
@@ -32,6 +33,7 @@ export function OverviewPage({
   status?: string;
   focus?: boolean;
 }) {
+  const { t } = useTranslation();
   const { data, save, remove, setPreferences, saving } = useWorkspace(),
     toast = useToast(),
     navigate = useNavigate();
@@ -102,8 +104,8 @@ export function OverviewPage({
                 ? 'A LITTLE CLARITY, EVERY DAY'
                 : status.toUpperCase()}
           </div>
-          <h1>{title}</h1>
-          <p>{desc}</p>
+          <h1>{t(title)}</h1>
+          <p>{t(desc)}</p>
         </div>
         {status === 'trash' ? (
           <button
@@ -112,7 +114,7 @@ export function OverviewPage({
             onClick={() => setEmptyTrash(true)}
           >
             <Trash2 size={17} />
-            Empty trash
+            {t('Empty trash')}
           </button>
         ) : (
           <button
@@ -120,7 +122,7 @@ export function OverviewPage({
             onClick={() => setEditor(newDeadline(boardId || data.boards[0]?.id || null))}
           >
             <Plus size={19} />
-            New deadline
+            {t('New deadline')}
           </button>
         )}
       </div>
@@ -128,7 +130,7 @@ export function OverviewPage({
         <div className="overview-strip">
           <div>
             <span className="stat-value">{String(active.length).padStart(2, '0')}</span>
-            <span>active deadlines</span>
+            <span>{t('active deadlines')}</span>
           </div>
           <div>
             <span className="stat-value">
@@ -141,13 +143,13 @@ export function OverviewPage({
                 ).length,
               ).padStart(2, '0')}
             </span>
-            <span>due this week</span>
+            <span>{t('due this week')}</span>
           </div>
           <div>
             <span className="stat-value">
               {String(active.filter((d) => d.focus).length).padStart(2, '0')}
             </span>
-            <span>kept in focus</span>
+            <span>{t('kept in focus')}</span>
           </div>
           <div className="strip-note">
             <span>
@@ -162,23 +164,23 @@ export function OverviewPage({
       <div className="section-toolbar">
         <h2>
           {focus
-            ? 'In focus'
+            ? t('In focus')
             : status === 'active'
-              ? 'In view'
+              ? t('In view')
               : status.charAt(0).toUpperCase() + status.slice(1)}{' '}
           <span className="count">{filtered.length}</span>
         </h2>
-        <div className="view-switch" aria-label="View style">
+        <div className="view-switch" aria-label={t('View style')}>
           <button
             className={view === 'grid' ? 'active' : ''}
-            aria-label="Card view"
+            aria-label={t('Card view')}
             onClick={() => setView('grid')}
           >
             <LayoutGrid size={17} />
           </button>
           <button
             className={view === 'list' ? 'active' : ''}
-            aria-label="List view"
+            aria-label={t('List view')}
             onClick={() => setView('list')}
           >
             <List size={18} />
@@ -189,18 +191,18 @@ export function OverviewPage({
         <div className="search-input">
           <Search size={17} />
           <input
-            aria-label="Search deadlines"
-            placeholder="Find a deadline…"
+            aria-label={t('Search deadlines')}
+            placeholder={t('Find a deadline…')}
             value={search}
             onChange={(e) => filter('q', e.target.value)}
           />
         </div>
         <select
-          aria-label="Filter by board"
+          aria-label={t('Filter by board')}
           value={boardId}
           onChange={(e) => filter('board', e.target.value)}
         >
-          <option value="">All boards</option>
+          <option value="">{t('All boards')}</option>
           {data.boards.map((b) => (
             <option key={b.id} value={b.id}>
               {b.name}
@@ -208,21 +210,21 @@ export function OverviewPage({
           ))}
         </select>
         <select
-          aria-label="Filter by priority"
+          aria-label={t('Filter by priority')}
           value={priority}
           onChange={(e) => filter('priority', e.target.value)}
         >
-          <option value="">Any priority</option>
-          <option value="high">High priority</option>
-          <option value="normal">Normal</option>
-          <option value="low">Low</option>
+          <option value="">{t('Any priority')}</option>
+          <option value="high">{t('High priority')}</option>
+          <option value="normal">{t('Normal')}</option>
+          <option value="low">{t('Low')}</option>
         </select>
         <select
-          aria-label="Sort deadlines"
+          aria-label={t('Sort deadlines')}
           value={sort}
           onChange={(e) => filter('sort', e.target.value)}
         >
-          <option value="due">Soonest first</option>
+          <option value="due">{t('Soonest first')}</option>
           <option value="priority">Priority first</option>
           <option value="title">By title</option>
         </select>

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import { useWorkspace } from '../context/WorkspaceContext';
 import { calendarDays, dayKey } from '../domain/time';
@@ -7,6 +8,7 @@ import { DeadlineEditor } from '../components/DeadlineEditor';
 import { DeadlineDetail } from '../components/DeadlineDetail';
 import type { Deadline } from '../domain/types';
 export function CalendarPage() {
+  const { t, i18n } = useTranslation();
   const { data } = useWorkspace();
   const [month, setMonth] = useState(
       () => new Date(new Date().getFullYear(), new Date().getMonth(), 1),
@@ -31,11 +33,13 @@ export function CalendarPage() {
           onClick={() => setEditor(newDeadline(data.boards[0]?.id || null))}
         >
           <Plus size={18} />
-          New deadline
+          {t('New deadline')}
         </button>
       </div>
       <div className="section-toolbar">
-        <h2>{month.toLocaleDateString('en', { month: 'long', year: 'numeric' })}</h2>
+        <h2>
+          {month.toLocaleDateString(i18n.resolvedLanguage, { month: 'long', year: 'numeric' })}
+        </h2>
         <div className="inline-actions">
           <button
             className="icon-button"
@@ -61,7 +65,11 @@ export function CalendarPage() {
       </div>
       <div className="calendar-scroll">
         <div className="calendar-grid">
-          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((s) => (
+          {Array.from({ length: 7 }, (_, index) =>
+            new Intl.DateTimeFormat(i18n.resolvedLanguage, { weekday: 'short' }).format(
+              new Date(Date.UTC(2024, 0, 7 + index)),
+            ),
+          ).map((s) => (
             <div className="weekday" key={s}>
               {s}
             </div>

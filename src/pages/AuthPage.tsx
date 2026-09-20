@@ -1,5 +1,6 @@
 import { useServiceStatus } from '../hooks/useServiceStatus';
 import { useEffect, useState, type FormEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ArrowRight, Mail, Eye, EyeOff } from 'lucide-react';
 import { Brand } from '../components/Brand';
 import { useAuth } from '../context/AuthContext';
@@ -29,6 +30,7 @@ function GoogleMark() {
   );
 }
 export function AuthPage() {
+  const { t } = useTranslation();
   const auth = useAuth();
   const service = useServiceStatus();
   const [mode, setMode] = useState<'login' | 'signup' | 'reset'>('login'),
@@ -181,13 +183,13 @@ export function AuthPage() {
                 onClick={signInWithGoogle}
               >
                 <GoogleMark />
-                Continue with Google
+                {t('Continue with Google')}
               </button>
               {!service.isLoading && !service.data?.googleLogin && (
                 <p className="provider-pending">Google sign-in is being connected.</p>
               )}
               <div className="auth-divider compact">
-                <span>or continue with email</span>
+                <span>{t('or continue with email')}</span>
               </div>
             </>
           )}
@@ -206,7 +208,7 @@ export function AuthPage() {
             )}
             {!auth.recovery && (
               <label className="field">
-                Email address
+                {t('Email address')}
                 <input
                   type="email"
                   autoComplete="email"
@@ -219,7 +221,7 @@ export function AuthPage() {
             )}
             {(mode !== 'reset' || auth.recovery) && (
               <label className="field">
-                Password
+                {t('Password')}
                 <span className="password-input">
                   <input
                     type={show ? 'text' : 'password'}
@@ -260,10 +262,10 @@ export function AuthPage() {
                 : auth.recovery
                   ? 'Save password'
                   : mode === 'signup'
-                    ? 'Create account'
+                    ? t('Create account')
                     : mode === 'reset'
                       ? 'Send reset link'
-                      : 'Sign in'}
+                      : t('Sign in')}
               <ArrowRight size={18} />
             </button>
           </form>
@@ -284,7 +286,7 @@ export function AuthPage() {
                 </button>
                 {mode === 'login' && (
                   <button className="text-button" onClick={() => setMode('reset')}>
-                    Forgot password?
+                    {t('Forgot password?')}
                   </button>
                 )}
                 {mode === 'reset' && (
@@ -297,7 +299,7 @@ export function AuthPage() {
                 <span>Take a look around first</span>
               </div>
               <button className="button secondary full" onClick={auth.enterDemo}>
-                Explore the demo <ArrowRight size={17} />
+                {t('Explore the demo')} <ArrowRight size={17} />
               </button>
               <p className="fine-print">
                 The demo uses fictional data stored only in this browser.

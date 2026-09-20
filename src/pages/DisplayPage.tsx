@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { Maximize, Minimize, Lock, Unlock, ArrowLeft, Settings2 } from 'lucide-react';
 import { useWorkspace } from '../context/WorkspaceContext';
@@ -9,6 +10,7 @@ import { Brand } from '../components/Brand';
 import { filterDeadlines } from '../domain/filter';
 import { EmptyState } from '../components/EmptyState';
 export function DisplayPage() {
+  const { i18n } = useTranslation();
   const { data, offline, lastSynced, refresh } = useWorkspace();
   const [locked, setLocked] = useState(false),
     [board, setBoard] = useState(''),
@@ -68,7 +70,7 @@ export function DisplayPage() {
           {prefs.showClock && (
             <>
               <strong>
-                {new Date(now).toLocaleTimeString('en', {
+                {new Date(now).toLocaleTimeString(i18n.resolvedLanguage, {
                   timeZone: zone,
                   hour: 'numeric',
                   minute: '2-digit',
@@ -76,7 +78,7 @@ export function DisplayPage() {
                 })}
               </strong>
               <span>
-                {new Date(now).toLocaleDateString('en', {
+                {new Date(now).toLocaleDateString(i18n.resolvedLanguage, {
                   timeZone: zone,
                   weekday: 'long',
                   month: 'long',

@@ -30,6 +30,22 @@
   min-width: 30px;
   padding: 5px;
 }
+html[dir='rtl'] .sidebar {
+  border-right: 0;
+  border-left: 1px solid var(--line);
+}
+html[dir='rtl'] .profile > .icon-button {
+  margin-left: 0;
+  margin-right: auto;
+}
+html[dir='rtl'] .skip-link {
+  left: auto;
+  right: 16px;
+}
+html[dir='rtl'] .toast.error {
+  border-left-width: 1px;
+  border-right: 4px solid var(--danger);
+}
 .topbar-start {
   display: flex;
   align-items: center;
@@ -171,6 +187,11 @@
     width: 270px;
     height: 100dvh;
     box-shadow: 12px 0 40px #0002;
+  }
+  html[dir='rtl'] .sidebar.is-open {
+    left: auto;
+    right: 0;
+    box-shadow: -12px 0 40px #0002;
   }
   .sidebar-scrim {
     display: block;

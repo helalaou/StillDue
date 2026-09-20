@@ -1,4 +1,5 @@
 import { ArrowUpRight, Pin, Star, Check, CalendarDays } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { Deadline, Board, Project, Preferences } from '../domain/types';
 import { countdown, detailedRemaining, elapsed, checklistProgress } from '../domain/countdown';
 import { formatDate } from '../domain/time';
@@ -28,6 +29,7 @@ export function DeadlineCard({
   onSelect?: () => void;
   display?: boolean;
 }) {
+  const { t } = useTranslation();
   const c = countdown(item, now);
   const zone = prefs.followDevice
     ? Intl.DateTimeFormat().resolvedOptions().timeZone
@@ -73,7 +75,7 @@ export function DeadlineCard({
       </div>
       <div className={'countdown ' + (c.value.length > 3 ? 'countdown-small' : '')}>
         {c.value}
-        <span>{c.label}</span>
+        <span>{t(c.label)}</span>
       </div>
       {prefs.countdown === 'detailed' && item.certainty === 'confirmed' && (
         <div className="detailed-time">{detailedRemaining(item, now)}</div>
@@ -92,21 +94,21 @@ export function DeadlineCard({
         <div className="card-next">
           {item.nextAction ? (
             <>
-              <span className="next-step-label">Next small step</span>
+              <span className="next-step-label">{t('Next small step')}</span>
               {item.nextAction}
             </>
           ) : (
             <span className="next-step-hint">
               {item.certainty === 'ongoing'
-                ? 'Keep the idea in view.'
-                : 'Add a next step when you’re ready.'}
+                ? t('Keep the idea in view.')
+                : t('Add a next step when you’re ready.')}
             </span>
           )}
         </div>
       )}
       {item.targetAt && (
         <div className="target-date">
-          Your target · {formatDate(item.targetAt, zone, prefs.hour24, true)}
+          {t('Your target')} · {formatDate(item.targetAt, zone, prefs.hour24, true)}
         </div>
       )}
       <div className="card-date">
@@ -115,8 +117,8 @@ export function DeadlineCard({
           {item.dueAt
             ? formatDate(item.dueAt, zone, prefs.hour24, item.dateOnly)
             : item.certainty === 'tba'
-              ? 'Date not announced'
-              : 'Ongoing · no fixed date'}
+              ? t('Date not announced')
+              : t('Ongoing · no fixed date')}
         </span>
       </div>
       {prefs.showProgress && item.certainty === 'confirmed' && item.dueAt && (
@@ -139,7 +141,7 @@ export function DeadlineCard({
         ) : onComplete && item.status === 'active' && !display ? (
           <button className="text-button" onClick={onComplete}>
             <Check size={14} />
-            Mark done
+            {t('Mark done')}
           </button>
         ) : (
           <span>

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { NavLink, Outlet, useNavigate, Link } from 'react-router-dom';
 import {
   LayoutGrid,
@@ -33,6 +34,7 @@ const mainLinks = [
   ['/focus', 'Focus', Focus],
 ] as const;
 export function Layout() {
+  const { t, i18n } = useTranslation();
   const [open, setOpen] = useState(false);
   const { data, saving, offline, lastSynced, setPreferences } = useWorkspace();
   const { demo, signOut } = useAuth();
@@ -53,12 +55,12 @@ export function Layout() {
   return (
     <div className="app-shell">
       <a className="skip-link" href="#main-content">
-        Skip to content
+        {t('Skip to content')}
       </a>
       {open && (
         <button
           className="sidebar-scrim"
-          aria-label="Close navigation"
+          aria-label={t('Close navigation')}
           onClick={() => setOpen(false)}
         />
       )}
@@ -73,9 +75,9 @@ export function Layout() {
             setOpen(false);
           }}
         >
-          Personal workspace <ChevronDown size={16} />
+          {t('Personal workspace')} <ChevronDown size={16} />
         </button>
-        <nav aria-label="Main navigation">
+        <nav aria-label={t('Main navigation')}>
           {mainLinks.map(([to, label, Icon]) => (
             <NavLink
               end={to === '/'}
@@ -85,10 +87,10 @@ export function Layout() {
               className={({ isActive }) => 'nav-item ' + (isActive ? 'selected' : '')}
             >
               <Icon size={19} />
-              {label}
+              {t(label)}
             </NavLink>
           ))}
-          <span className="nav-label">PLAN WHAT’S NEXT</span>
+          <span className="nav-label">{t('PLAN WHAT’S NEXT')}</span>
           {[
             ['/discover', 'Discover conferences', Compass],
             ['/templates', 'Templates', Files],
@@ -102,7 +104,7 @@ export function Layout() {
                 className={({ isActive }) => 'nav-item ' + (isActive ? 'selected' : '')}
               >
                 <I size={19} />
-                {String(label)}
+                {t(String(label))}
               </NavLink>
             );
           })}
@@ -121,7 +123,7 @@ export function Layout() {
                   className={({ isActive }) => 'nav-item small ' + (isActive ? 'selected' : '')}
                 >
                   <I size={17} />
-                  {String(label)}
+                  {t(String(label))}
                 </NavLink>
               );
             })}
@@ -130,7 +132,7 @@ export function Layout() {
         <div className="sidebar-bottom">
           <NavLink to="/display" className="nav-item">
             <Monitor size={19} />
-            Display mode
+            {t('Display mode')}
           </NavLink>
           <NavLink
             to="/settings"
@@ -138,17 +140,17 @@ export function Layout() {
             className={({ isActive }) => 'nav-item ' + (isActive ? 'selected' : '')}
           >
             <Settings2 size={19} />
-            Settings
+            {t('Settings')}
           </NavLink>
           <div className="profile">
             <span className="avatar">{(prefs.name || 'S').slice(0, 1).toUpperCase()}</span>
             <div>
-              {prefs.name || 'My workspace'}
-              <small>{demo ? 'Demo workspace' : 'Personal workspace'}</small>
+              {prefs.name || t('My workspace')}
+              <small>{demo ? t('Demo workspace') : t('Personal workspace')}</small>
             </div>
             <button
               className="icon-button"
-              aria-label={demo ? 'Leave demo' : 'Sign out'}
+              aria-label={demo ? t('Leave demo') : t('Sign out')}
               onClick={leave}
             >
               <LogOut size={17} />
@@ -161,32 +163,42 @@ export function Layout() {
           <div className="topbar-start">
             <button
               className="icon-button mobile-menu"
-              aria-label={open ? 'Close navigation' : 'Open navigation'}
+              aria-label={open ? t('Close navigation') : t('Open navigation')}
               aria-expanded={open}
               onClick={() => setOpen(!open)}
             >
               {open ? <X size={22} /> : <Menu size={22} />}
             </button>
             <span>
-              Workspace <span className="breadcrumb">/ Personal</span>
+              {t('Workspace')} <span className="breadcrumb">/ {t('Personal')}</span>
             </span>
           </div>
           <div className="top-actions">
             <span
               className="sync-state"
               title={
-                lastSynced ? 'Last synced ' + new Date(lastSynced).toLocaleTimeString() : undefined
+                lastSynced
+                  ? t('Last synced') +
+                    ' ' +
+                    new Date(lastSynced).toLocaleTimeString(i18n.resolvedLanguage)
+                  : undefined
               }
             >
               {offline ? <CloudOff size={16} /> : <Cloud size={16} />}
               <span>
-                {demo ? 'Demo · this browser' : offline ? 'Offline' : saving ? 'Saving…' : 'Synced'}
+                {demo
+                  ? t('Demo · this browser')
+                  : offline
+                    ? t('Offline')
+                    : saving
+                      ? t('Saving…')
+                      : t('Synced')}
               </span>
             </span>
             <button
               className="icon-button"
-              title="Switch light and dark theme"
-              aria-label="Switch light and dark theme"
+              title={t('Switch light and dark theme')}
+              aria-label={t('Switch light and dark theme')}
               onClick={() =>
                 void setPreferences({
                   ...prefs,
@@ -205,15 +217,15 @@ export function Layout() {
         </header>
         {demo && (
           <div className="demo-bar">
-            You’re exploring a demo. Changes stay in this browser.
+            {t('You’re exploring a demo. Changes stay in this browser.')}
             <button onClick={leave}>
-              Sign in to sync <span aria-hidden>↗</span>
+              {t('Sign in to sync')} <span aria-hidden>↗</span>
             </button>
           </div>
         )}
         {offline && (
           <div className="offline-bar" role="status">
-            Offline view · Showing your last saved workspace. Reconnect to save changes.
+            {t('Offline view · Showing your last saved workspace. Reconnect to save changes.')}
           </div>
         )}
         <Outlet />
