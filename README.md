@@ -1,7 +1,7 @@
 <p align="center"><img src="public/brand/wordmark.svg" width="310" alt="StillDue" /></p>
 <p align="center">Keep it in view.</p>
 
-StillDue is a calm, customizable home for research deadlines and everyday commitments. It grew out of a simple page left open on a desk: a few large countdowns, a clear sense of priority, and less to hold in your head.
+StillDue is a simple, customizable platform for keeping an eye on deadlines and everyday commitments. It grew out of a simple page left open on a desk: a few large countdowns, a clear sense of priority, and less to hold in your head.
 
 The app keeps that glanceable view while making it possible to edit from a phone, organize a project on a laptop, and leave a readable board on a tablet or browser-capable e-ink display. It is designed to reduce the effort of remembering, finding, and starting. Predictable layouts, visible next steps, reversible actions, and optional reminders are deliberate choices. StillDue makes no medical claims.
 
