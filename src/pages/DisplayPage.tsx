@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { Maximize, Minimize, Lock, Unlock, ArrowLeft, Settings2 } from 'lucide-react';
+import { Maximize, Minimize, Lock, Unlock, ArrowLeft, Settings2, Minus, Plus } from 'lucide-react';
 import { useWorkspace } from '../context/WorkspaceContext';
 import { useClock } from '../hooks/useClock';
 import { useWakeLock } from '../hooks/useWakeLock';
@@ -9,6 +9,13 @@ import { DeadlineCard } from '../components/DeadlineCard';
 import { Brand } from '../components/Brand';
 import { filterDeadlines } from '../domain/filter';
 import { EmptyState } from '../components/EmptyState';
+import { appConfig } from '../config/app.config';
+
+const DISPLAY_CARD_SCALE_KEY = 'stilldue:display:card-scale';
+const cardScaleConfig = appConfig.display.cardScale;
+const clampCardScale = (value: number) =>
+  Math.min(cardScaleConfig.max, Math.max(cardScaleConfig.min, value));
+
 export function DisplayPage() {
   const { i18n } = useTranslation();
   const { data, offline, lastSynced, refresh } = useWorkspace();
@@ -16,6 +23,12 @@ export function DisplayPage() {
     [board, setBoard] = useState(''),
     [settings, setSettings] = useState(false),
     [eink, setEink] = useState(localStorage.getItem('stilldue:display:eink') === 'true'),
+    [cardScale, setCardScale] = useState(() => {
+      const saved = localStorage.getItem(DISPLAY_CARD_SCALE_KEY);
+      if (saved === null) return cardScaleConfig.default;
+      const stored = Number(saved);
+      return Number.isFinite(stored) ? clampCardScale(stored) : cardScaleConfig.default;
+    }),
     [awake, setAwake] = useState(false),
     [fullscreen, setFullscreen] = useState(false),
     [page, setPage] = useState(0);
@@ -45,6 +58,9 @@ export function DisplayPage() {
     };
   }, [eink]);
   useEffect(() => {
+    localStorage.setItem(DISPLAY_CARD_SCALE_KEY, String(cardScale));
+  }, [cardScale]);
+  useEffect(() => {
     const id = setInterval(refresh, (eink ? 300 : prefs.displayRefresh) * 1000);
     return () => clearInterval(id);
   }, [eink, prefs.displayRefresh]);
@@ -61,6 +77,11 @@ export function DisplayPage() {
     } catch {
       /* The browser's own fullscreen controls remain available. */
     }
+  }
+  function resizeCards(direction: -1 | 1) {
+    setCardScale((current) =>
+      clampCardScale(Number((current + direction * cardScaleConfig.step).toFixed(1))),
+    );
   }
   return (
     <div className={'display-page ' + (eink ? 'eink-display' : '')}>
@@ -139,6 +160,41 @@ export function DisplayPage() {
             <input type="checkbox" checked={eink} onChange={(e) => setEink(e.target.checked)} />
             E-ink preset on this device
           </label>
+          <div className="display-size-setting">
+            <div className="display-size-heading">
+              <span>Card size</span>
+              <output htmlFor="display-card-size">{Math.round(cardScale * 100)}%</output>
+            </div>
+            <div className="display-size-control">
+              <button
+                className="icon-button"
+                aria-label="Make cards smaller"
+                disabled={cardScale <= cardScaleConfig.min}
+                onClick={() => resizeCards(-1)}
+              >
+                <Minus size={18} />
+              </button>
+              <input
+                id="display-card-size"
+                aria-label="Card size"
+                type="range"
+                min={cardScaleConfig.min}
+                max={cardScaleConfig.max}
+                step={cardScaleConfig.step}
+                value={cardScale}
+                onChange={(event) => setCardScale(clampCardScale(Number(event.target.value)))}
+              />
+              <button
+                className="icon-button"
+                aria-label="Make cards larger"
+                disabled={cardScale >= cardScaleConfig.max}
+                onClick={() => resizeCards(1)}
+              >
+                <Plus size={18} />
+              </button>
+            </div>
+            <small>Saved on this device</small>
+          </div>
           <label className="check-field">
             <input type="checkbox" checked={awake} onChange={(e) => setAwake(e.target.checked)} />
             Keep screen awake
@@ -157,7 +213,12 @@ export function DisplayPage() {
       {items.length ? (
         <div
           className="deadline-grid display-grid"
-          style={{ '--display-columns': prefs.columns } as React.CSSProperties}
+          style={
+            {
+              '--display-columns': prefs.columns,
+              '--display-card-scale': cardScale,
+            } as React.CSSProperties
+          }
         >
           {items
             .slice(Math.min(page, pages - 1) * perPage, (Math.min(page, pages - 1) + 1) * perPage)

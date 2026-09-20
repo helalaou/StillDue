@@ -53,34 +53,43 @@
 .display-grid {
   grid-template-columns: repeat(var(--display-columns, 3), minmax(0, 1fr));
   gap: 24px;
+  --display-card-scale: 1;
 }
 .display-grid .deadline-card {
-  padding: 30px;
-  min-height: 380px;
+  padding: calc(30px * var(--display-card-scale));
+  min-height: calc(380px * var(--display-card-scale));
 }
 .display-grid .countdown {
-  font-size: clamp(75px, 7vw, 145px);
-  margin: 34px 0 24px;
+  font-size: clamp(
+    calc(60px * var(--display-card-scale)),
+    calc(7vw * var(--display-card-scale)),
+    calc(145px * var(--display-card-scale))
+  );
+  margin: calc(34px * var(--display-card-scale)) 0 calc(24px * var(--display-card-scale));
 }
 .display-grid .deadline-card h3 {
-  font-size: clamp(23px, 1.9vw, 35px);
+  font-size: clamp(
+    calc(20px * var(--display-card-scale)),
+    calc(1.9vw * var(--display-card-scale)),
+    calc(35px * var(--display-card-scale))
+  );
   line-height: 1.2;
 }
 .display-grid .card-project {
-  font-size: 1rem;
+  font-size: calc(1rem * var(--display-card-scale));
 }
 .display-grid .card-next {
-  font-size: 1.062rem;
-  min-height: 83px;
+  font-size: calc(1.062rem * var(--display-card-scale));
+  min-height: calc(83px * var(--display-card-scale));
 }
 .display-grid .card-date {
-  font-size: 0.9375rem;
+  font-size: calc(0.9375rem * var(--display-card-scale));
 }
 .display-grid .board-label {
-  font-size: 0.75rem;
+  font-size: calc(0.75rem * var(--display-card-scale));
 }
 .display-grid .card-bottom {
-  font-size: 0.6875rem;
+  font-size: calc(0.6875rem * var(--display-card-scale));
 }
 .display-footer {
   display: flex;
@@ -110,6 +119,52 @@
 .display-settings .fine-print {
   width: 100%;
   margin: 0;
+}
+.display-size-setting {
+  width: min(310px, 100%);
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface-alt);
+}
+.display-size-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 4px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+.display-size-heading output {
+  min-width: 48px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  text-align: center;
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+.display-size-control {
+  display: grid;
+  grid-template-columns: 38px minmax(120px, 1fr) 38px;
+  align-items: center;
+  gap: 7px;
+}
+.display-size-control .icon-button {
+  width: 38px;
+  height: 38px;
+  min-height: 38px;
+}
+.display-size-control input[type='range'] {
+  min-height: 38px;
+}
+.display-size-setting small {
+  display: block;
+  color: var(--muted);
+  font-size: 0.6875rem;
+  text-align: center;
 }
 .eink-display .deadline-card {
   border: 2px solid #000;
@@ -144,13 +199,13 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .display-grid .countdown {
-    font-size: 5.312rem;
+    font-size: calc(5.312rem * var(--display-card-scale));
   }
   .display-grid .deadline-card {
-    padding: 25px;
+    padding: calc(25px * var(--display-card-scale));
   }
   .display-grid .card-next {
-    font-size: 1rem;
+    font-size: calc(1rem * var(--display-card-scale));
   }
 }
 @media (max-width: 650px) {
@@ -184,7 +239,7 @@
     grid-template-columns: 1fr;
   }
   .display-grid .countdown {
-    font-size: 6.25rem;
+    font-size: calc(6.25rem * var(--display-card-scale));
   }
   .display-title > span:last-child {
     font-size: 0.6875rem;

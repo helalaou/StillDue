@@ -11,6 +11,26 @@ test('shows large deadlines and device-specific e-ink mode', async ({ page }) =>
   await expect(page.getByRole('button', { name: 'Display settings' })).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Unlock display controls' })).toBeVisible();
 });
+test('resizes display cards within safe limits and remembers the device setting', async ({
+  page,
+}) => {
+  await enterDemo(page);
+  await navigate(page, 'Display mode');
+  await page.getByRole('button', { name: 'Display settings' }).click();
+
+  const size = page.getByRole('slider', { name: 'Card size' });
+  await expect(size).toHaveValue('1');
+  await page.getByRole('button', { name: 'Make cards larger' }).click();
+  await expect(size).toHaveValue('1.1');
+  await expect(page.locator('.display-grid')).toHaveCSS('--display-card-scale', '1.1');
+
+  await page.reload();
+  await page.getByRole('button', { name: 'Display settings' }).click();
+  await expect(page.getByRole('slider', { name: 'Card size' })).toHaveValue('1.1');
+
+  await page.getByRole('slider', { name: 'Card size' }).fill('1.3');
+  await expect(page.getByRole('button', { name: 'Make cards larger' })).toBeDisabled();
+});
 test('keeps the workspace within the viewport', async ({ page }) => {
   await enterDemo(page);
   expect(
