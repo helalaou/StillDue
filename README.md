@@ -30,6 +30,7 @@ For browser-capable e-ink tablets and monitors, the monochrome preset removes an
 - Use research and everyday templates, or create a reusable template of your own.
 - Discover computer science conferences by field and subfield. Other fields support manual entry today.
 - Choose light, dark, device-following, or monochrome themes; adjust text size, density, columns, visible details, and urgency thresholds.
+- Follow the device language or choose from English, Spanish, French, German, Portuguese, Italian, Dutch, Arabic, Chinese, Japanese, Korean, Hindi, Russian, and Turkish. Arabic uses a right-to-left layout, and dates and times follow the selected locale.
 - Open a large display view with fullscreen controls, an optional clock, keep-awake support, and a device-specific e-ink preset.
 - Move deleted deadlines to Trash, undo the deletion, or restore them later.
 - Export a JSON snapshot, CSV, or calendar file; preview CSV/JSON imports before adding anything.
@@ -86,6 +87,8 @@ Configure authentication redirect URLs for your deployment and local development
 ## Configuration
 
 `src/config/app.config.ts` holds product defaults, feature flags, limits, display timings, and source configuration. Account preferences are stored in Supabase; the e-ink display override stays on the device. `.env.example` documents environment values, and `netlify.toml` defines hosting and schedules.
+
+Localization uses typed locale metadata and i18next resources under `src/i18n`. English is the fallback when new copy has not yet been translated. See the [localization guide](docs/localization.md) for language coverage and contribution rules.
 
 Secrets must never use the `VITE_` prefix, enter the repository, or appear in the client bundle. Keep the Supabase privileged key and any email-provider key server-side.
 

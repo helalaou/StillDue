@@ -13,3 +13,5 @@ Keep each pull request reviewable. Include screenshots for visible interface cha
 Database changes belong in new migrations; do not edit migrations already applied to a shared environment. Every private table needs ownership rules. New source adapters must include attribution, date-uncertainty handling, and tests for malformed data.
 
 Keep copy plain and specific. Preserve keyboard access, readable type, mobile layouts, and monochrome meaning. Prefer a small coherent addition over introducing a new framework or dependency without a clear need.
+
+User-facing copy should use the localization layer. Add the English source string and update supported language resources in `src/i18n`; do not concatenate translated sentence fragments. Native speakers are especially welcome to improve translations. Test longer labels, mobile layouts, localized dates, and right-to-left direction when relevant. See `docs/localization.md`.
